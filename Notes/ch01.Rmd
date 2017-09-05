@@ -1,0 +1,36 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 1: Introduction'
+author: "Brad Mcneney"
+date: '2017-09-01'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+```
+
+## What is Statistical Learning?
+
+## History
+
+## Notation
+
+## Simple Matrix Algebra
+
+* Will to discuss in tutorial for those who need a refresher
+
+## R and RStudio
+
+* Will to discuss in tutorial for those who need a refresher
+* Be sure to 
+install the `ISLR` package using the RStudio `Tools` menu, or
+from the command line
+
+```{r,eval=FALSE}
+install.packages("ISLR")
+```
+
