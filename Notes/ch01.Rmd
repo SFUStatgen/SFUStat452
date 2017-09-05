@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
 
 * Tools for learning from data.
 * Multiple regression is an example of such a tool:
-    + We propose a linear model $Y = \beta_0 + X_1 \beta_1 + \ldots X_p \beta_p + \epsilon$, and fit the model.
+    + We propose a linear model $Y = \beta_0 + X_1 \beta_1 + \ldots + X_p \beta_p + \epsilon$, and fit the model.
     + We may interpret fitted coefficients, or use them 
     to obtain predictions.
     + Such a problem is said to be "supervised" because of 
