@@ -13,24 +13,104 @@ output:
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
 ```
 
+
 ## What is Statistical Learning?
 
-## History
+* Tools for learning from data.
+* Multiple regression is an example of such a tool:
+    + We propose a linear model $Y = \beta_0 + X_1 \beta_1 + \ldots X_p \beta_p + \epsilon$, and fit the model.
+    + We may interpret fitted coefficients, or use them 
+    to obtain predictions.
+    + Such a problem is said to be "supervised" because of 
+    the response variable $Y$, viewed as an "output"
+    that is influenced by the "inputs" $X_1,\ldots,X_p$.
+    
+## Example: The `Wage` data
+
+\scriptsize
+
+```{r}
+library(ISLR)
+data(Wage)
+head(Wage)
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=3,fig.width=4}
+library(ggplot2)
+ggplot(Wage,aes(x=age,y=wage)) +
+  geom_point() + geom_smooth()
+```
+
+
+##
+
+\scriptsize
+
+```{r,fig.height=3,fig.width=4}
+ggplot(Wage,aes(x=year,y=wage)) + geom_point() + geom_smooth(method="lm")
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=3,fig.width=4}
+library(ggplot2)
+ggplot(Wage,aes(x=education,y=wage)) +
+  geom_boxplot()
+```
+
+##
+
+\scriptsize
+
+```{r}
+wfit <- lm(wage ~ age + I(age^2) + year + education, data=Wage)
+summary(wfit)$coefficients
+```
+
+
+## Other tools
+
+* We will study non-linear methods for supervised
+learning, and methods appropriate
+to "unsupervised" problems, where there is no response 
+variable.
 
 ## Notation
 
-## Simple Matrix Algebra
+* There are $n$ distinct observations.
+* The random response for the $i$th individual 
+is $Y_i$ and observed value is $y_i$; $i=1\ldots,n$.
+* There are $p$ explanatory variables $X=(X_1, \ldots, X_p)$.
+* The measured value of the
+$j$th explanatory variable on the $i$th observation
+is denoted $x_{ij}$
+
+
+## More Notation and Simple Matrix Algebra
 
 * Will to discuss in tutorial for those who need a refresher
+or quick intro.
 
 ## R and RStudio
 
-* Will to discuss in tutorial for those who need a refresher
-* Be sure to 
-install the `ISLR` package using the RStudio `Tools` menu, or
+* You will need to install both R and the RStudio interface,
+**and** you will need to create an RStudio "project"
+based on the class GitHub repository.
+    + See the computer software "getting started" page on
+    canvas.
+    + Also, Will to discuss in tutorial.
+* Also be sure to 
+install the `tidyverse` and
+`ISLR` packages using the RStudio `Tools` menu, or
 from the command line
 
 ```{r,eval=FALSE}
-install.packages("ISLR")
+install.packages(c("tidyverse","ISLR")
 ```
 
