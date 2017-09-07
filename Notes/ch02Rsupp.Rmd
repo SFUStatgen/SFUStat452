@@ -1,7 +1,7 @@
 ---
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 2: Statistical Learning, R supplement'
-author: "Brad Mcneney"
+author: "Brad McNeney"
 date: '2017-09-01'
 output: 
   beamer_presentation:
