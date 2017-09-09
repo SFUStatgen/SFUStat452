@@ -215,7 +215,8 @@ ggplot(income,aes(x=Education,y=Income)) + geom_point() +
 \scriptsize
 
 ```{r}
-ifit<- lm(Income ~ Education + I(Education^2) + I(Education^3), data=income)
+ifit<- lm(Income ~ Education + I(Education^2) + I(Education^3)+
+            I(Education^4)+I(Education^5)+I(Education^6), data=income)
 ```
 
 \normalsize
@@ -340,7 +341,7 @@ reflects how well $\hat{f}$ predicts new observations.
 the expected test MSE $E(y_0 - \hat{f}(x_0))^2$, obtained
 by averaging over repeated estimations of $f$,
 can be decomposed as 
-$$E(y_0 - \hat{f}(x_0))^2 = Var(\hat{f}(x_0))  [Bias(\hat{f}(x_0))]^2 +
+$$E(y_0 - \hat{f}(x_0))^2 = Var(\hat{f}(x_0)) +  [Bias(\hat{f}(x_0))]^2 +
 Var(\epsilon)$$
 where 
     + $Var(\hat{f}(x_0))$ is the variance (spread) of the predictions,
