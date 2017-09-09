@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Question 1 (Chapter 2, #1)
+## Question 1 (Chapter 2, #1, 8 marks)
 
 (a) <your answer here>
 
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 (d)
 
 
-## Question 2 (Chapter 2, #2)
+## Question 2 (Chapter 2, #2, 6 marks)
 
 (a)
 
@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 (c)
 
-## Question 3 (Chapter 2, #9)
+## Question 3 (Chapter 2, #9, 8 marks)
 
 ```{r}
 library(ISLR) # use install.packages("ISLR") to install
