@@ -40,35 +40,44 @@ head(Auto)
 
 (b)
 
+```{r}
+# Hints:
+#   with(Auto,range(mpg)); with(Auto,range(cylinders)), etc.
+# or 
+#   library(dplry)
+#   summarize(Auto,range(mpg),range(cylinders))
+##
+# or you can use apply() on subsets of columns
+apply(Auto[,1:5],MARGIN=2,FUN=range)
+# or we can name the output of range and call apply
+myr <- function(x) {
+  out <- range(x)
+  names(out) <- c("min","max")
+  out
+}
+apply(Auto[,1:5],MARGIN=2,FUN=myr)
+```
+
+
 (c)
+
+```{r}
+# Hint
+meansd <- function(x) {
+  out<-c(mean(x),sd(x))
+  names(out) <- c("mean","SD")
+  out
+}
+```
+
 
 (d)
 
 ```{r}
+# Hint:
 AutoSubset <- Auto[c(1:9),(86:nrow(Auto)),]
 ```
 
 (e)
 
 (f)
-
-
-
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
