@@ -35,7 +35,7 @@ head(advert)
 \scriptsize
 
 ```{r,fig.height=4,fig.width=6}
-ggplot(advert,aes(x=TV,y=Sales)) + geom_point() +
+ggplot(advert,aes(x=TV,y=sales)) + geom_point() +
   geom_smooth(method="lm")
 ```
 
@@ -93,8 +93,8 @@ squares idea on the internet; e.g.,
 
 * The line that minimizes RSS has
 \begin{eqnarray*}
-\hat\beta & = & r \frac{s_y}{s_x} \\
-\hat\alpha & = & \overline{y} - \hat\beta \overline{x}
+\hat{\beta}_1 & = & r \frac{s_y}{s_x} \\
+\hat{\beta}_0 & = & \overline{y} - \hat{\beta}_1 \overline{x}
 \end{eqnarray*}
 where 
     + $r$ is the Pearson correlation between the $x$'s
@@ -108,7 +108,7 @@ where
 \scriptsize
 
 ```{r}
-afit <- lm(Sales ~ TV,data=advert)
+afit <- lm(sales ~ TV,data=advert)
 summary(afit)$coefficients
 ```
 
