@@ -15,7 +15,6 @@ library(ggplot2)
 ```
 
 
-
 ## Example: Advertising Data
 
 * Sales (in thousands of units), and advertising budgets
