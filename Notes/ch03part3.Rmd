@@ -158,6 +158,10 @@ cfit <- lm(Balance ~ Income*Ethnicity,data=credit)
 summary(cfit)$coefficients
 ```
 
+
+
+
+
 ## Model Details
 
 - Model requires too much notation to write out in detail;
@@ -204,6 +208,22 @@ head(data.frame(Ethnicity=credit$Ethnicity,dvars))
 dvars <- model.matrix(cfit)[,2:6]
 head(data.frame(Ethnicity=credit$Ethnicity,dvars))
 ```
+
+
+## Multiple-Partial F-test for Interaction
+
+\scriptsize
+
+```{r}
+cfitReduced <- lm(Balance ~ Income + Ethnicity,data=credit)
+anova(cfitReduced,cfit)
+```
+
+\normalsize
+
+* There is little evidence that ethnicity modifies
+the effect of income on balance.
+
 
 # Model Diagnostics based on Residuals
 
