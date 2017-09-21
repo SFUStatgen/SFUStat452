@@ -478,6 +478,7 @@ summary(afitC)$coefficients
 vif(afitC)
 ```
 
+
 ##
 
 \scriptsize
