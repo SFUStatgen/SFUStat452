@@ -463,3 +463,27 @@ vif(ifit)
     and (ii) the number of bedrooms, we may think
     bedrooms is just a surrogate for size.
 - If no obvious candidate to drop, use model selection.
+
+## Fit of the Advertising Data Revisited
+
+\scriptsize
+
+```{r}
+library(dplyr)
+advert <- mutate(advert,cTV = TV - mean(TV),
+         cRadio = radio - mean(radio))
+afitC <- lm(sales ~ cTV*cRadio+I(cTV^2) +I(cTV^3)+I(cTV^4),
+            data=advert)
+summary(afitC)$coefficients
+vif(afitC)
+```
+
+##
+
+\scriptsize
+
+```{r, fig.width=4, fig.height=2.5}
+mutate(advert,fitted=fitted(afitC),residuals=residuals(afitC)) %>%
+  ggplot(aes(x=fitted,y=residuals)) + geom_point() + geom_smooth()
+```
+
