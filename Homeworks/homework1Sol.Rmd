@@ -1,0 +1,127 @@
+---
+title: "Homework 1 Solutions"
+author: "Brad McNeney"
+date: '2017-09-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1 (Chapter 2, #1, 8 marks)
+
+(a) (2 marks) Flexible is better (1 mark), because it 
+can use the abundance of data points (large $n$) to give a good fit.
+
+(b) (2 marks) Flexible is worse (1 mark) because it
+takes more data ($n$) to fit.
+
+(c) (2 marks) Flexible is better (1 mark) because it 
+will have the flexibility to fit the non-linear relationship.
+
+(d) (2 marks) Flexible is worse (1 mark) because it
+will try to fit the error.
+
+
+## Question 2 (Chapter 2, #2, 6 marks)
+
+(a) (2 marks) This is a regression problem and we 
+are most interested in inference (1 mark). 
+$n=500$, $p=3$.
+
+(b) (2 marks) This is a classification problem and we
+are  most interested in prediction (1 mark).
+$n=20$, $p=13$.
+
+(c) (2 marks) This is a regression problem and we are
+most interested in prediction (1 mark).
+$n=52$, $p=3$.
+
+## Question 3 (Chapter 2, #9, 8 marks)
+
+```{r}
+library(ISLR) 
+data(Auto)
+head(Auto)
+```
+
+(a) (1 mark) From the help page `help("Auto")`, we see
+that origin and name are qualitative and the other seven
+are quantitative. 
+Note: A variable that takes on only a few values is **discrete**,
+but that doesn't mean it must be qualitative. (Though
+all qualitative variables are discrete.)
+`cylinders` is discrete, but is quantitative.
+The test for a quantitative variable is whether it makes sense
+to do arithmetic. 
+
+(b) (1 mark) 
+Note: My hint regarding `summarize()` didn't work! Fixed
+on Sept. 18.
+
+```{r}
+myr <- function(x) {
+  out <- range(x)
+  names(out) <- c("min","max")
+  out
+}
+apply(Auto[,1:7],MARGIN=2,FUN=myr)
+```
+
+
+(c) (1 mark)
+
+```{r}
+meansd <- function(x) {
+  out<-c(mean(x),sd(x))
+  names(out) <- c("mean","SD")
+  out
+}
+apply(Auto[,1:7],MARGIN=2,FUN=meansd)
+```
+
+
+(d) (2 marks; one for subsetting, one for the summaries)
+Note: My original code to subset the `Auto` dataframe 
+didn't work. Fixed on Sept. 18.
+
+```{r}
+AutoSubset <- Auto[c(1:9,86:nrow(Auto)),1:7]
+rangeMeanSd <- function(x) {
+  c(myr(x),meansd(x))
+}
+apply(AutoSubset,MARGIN=2,FUN=rangeMeanSd)
+```
+
+(e) (2 marks) One mark for some pairwise 
+scatterplots of the quantitative variables
+and comment on the relationships. You might
+start by using the `pairs()` function for plots and 
+`cor()` for correlations among the quantitative
+variables. One mark for a sensible comment.
+For example:
+The variables `cylinders`, `displacement`, `horsepower`
+and `weight` are positively correlated with each other
+and negatively correlated with `mpg`.
+
+You could also have done individual
+scatterplots, and perhaps used colors to indicate the `origin`.
+Note that in `ggplot()` qualitative variables should 
+be coerced to factors.
+
+```{r}
+pairs(Auto[,1:7])
+cor(Auto[,1:7])
+library(dplyr)
+Auto <- mutate(Auto,fOrigin = factor(origin,labels=c("American","European","Japanese")))
+               
+library(ggplot2)
+ggplot(Auto,aes(x=displacement,y=mpg,color=fOrigin)) +
+  geom_point() + geom_smooth(method="lm",se=FALSE)
+```
+
+(f) (1 marks) You should have included some 
+plots or numerical summaries to show that `mpg` looks
+associated with all of the quantitative variables
+(and in some cases looks quite strongly associated).
