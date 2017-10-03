@@ -125,14 +125,14 @@ predDir <- function(fit,dat) {
   n <- nrow(dat) # Data used to fit
   pp <- rep("Down",n)
   pp[probs>0.5] <- "Up"
-  return(data.frame(predDirection=pp,obsDirection=dat$Direction))
+  pp
 }
-pdat <- predDir(sfit,Smarket)
-table(pdat)
-mean(pdat$pred != pdat$obs) # enough to give partial variable names
+Smarket <- mutate(Smarket,predDirection = predDir(sfit,Smarket))
+xtabs(~ predDirection+Direction, data=Smarket)
+with(Smarket,mean(predDirection != Direction))
 ```
 
-The above prediction error is optimistic because
+The  prediction error of 48% is optimistic because
 we are making predictions on the same data that
 was used to fit the model. To get a test set error
 we need to hold out some of the data. The text
@@ -144,9 +144,10 @@ Smarket.train <- Smarket[train,]
 Smarket.test <- Smarket[!train,]
 sfit <- glm(Direction~Lag1+Lag2+Lag3+Lag4+Lag5+Volume,
             data=Smarket.train, family=binomial())
-pdat <- predDir(sfit,Smarket.test)
-table(pdat)
-mean(pdat$pred != pdat$obs) 
+Smarket.test <- mutate(Smarket.test, 
+                       predDirection = predDir(sfit,Smarket.test))
+xtabs(~predDirection + Direction,data=Smarket.test)
+with(Smarket.test,mean(predDirection != Direction)) 
 ```
 
 We see a higher error rate than 50%, which is
@@ -161,9 +162,10 @@ Remove these and re-train, etc.
 round(summary(sfit)$coefficients,3)
 sfit <- glm(Direction~Lag1+Lag2,
             data=Smarket.train, family=binomial())
-pdat <- predDir(sfit,Smarket.test)
-table(pdat)
-mean(pdat$pred != pdat$obs) 
+Smarket.test <- mutate(Smarket.test, 
+                       predDirection = predDir(sfit,Smarket.test))
+xtabs(~predDirection + Direction,data=Smarket.test)
+with(Smarket.test,mean(predDirection != Direction)) 
 ```
 
 The reduced model appears to be a little better
@@ -174,25 +176,23 @@ than guessing.
 ```{r}
 library(MASS)
 sfit <- lda(Direction ~ Lag1+Lag2, data=Smarket.train)
-preds <- predict(sfit,newdata=Smarket.test)
-pdat <- data.frame(predDirection = preds$class,
-                   obsDirection = Smarket.test$Direction)
-table(pdat)
-mean(pdat$pred != pdat$obs)
+preds <- predict(sfit,newdata=Smarket.test)$class
+Smarket.test <- mutate(Smarket.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Smarket.test)
+with(Smarket.test,mean(predDirection != Direction)) 
 ```
 
-The error rate is about 44%.
+Same predictions and error rate as logistic regression.
 
 
 ### Quadratic Discriminant Analysis
 
 ```{r}
 sfit <- qda(Direction ~ Lag1+Lag2, data=Smarket.train)
-preds <- predict(sfit,newdata=Smarket.test)
-pdat <- data.frame(predDirection = preds$class,
-                   obsDirection = Smarket.test$Direction)
-table(pdat)
-mean(pdat$pred != pdat$obs)
+preds <- predict(sfit,newdata=Smarket.test)$class
+Smarket.test <- mutate(Smarket.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Smarket.test)
+with(Smarket.test,mean(predDirection != Direction)) 
 ```
 
 The error rate is about 40%, the best so far.
@@ -208,11 +208,10 @@ train.X <- dplyr::select(Smarket.train,Lag1,Lag2)
 test.X <- dplyr::select(Smarket.test,Lag1,Lag2)
 train.Direction <- Smarket.train$Direction
 set.seed(1) # for randomly breaking neighbor ties
-pdat <-data.frame(
-  predDirection=knn(train=train.X,test=test.X,cl=train.Direction,k=3),
-  obsDirection=Smarket.test$Direction)
-table(pdat)
-mean(pdat$pred != pdat$obs)
+preds <- knn(train=train.X,test=test.X,cl=train.Direction,k=3)
+Smarket.test <- mutate(Smarket.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Smarket.test)
+with(Smarket.test,mean(predDirection != Direction)) 
 ```
 
 The prediction error of KNN is the highest of 
