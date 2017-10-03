@@ -26,7 +26,7 @@ $$Pr(Y=k|X=x) = \frac{Pr(X=x|Y=k)Pr(Y=k)}{\sum_j Pr(X=x|Y=j)Pr(Y=j)}.$$
 ## Notation and Terminology
 
 * Notation: $f_k(X) = Pr(X=x|Y=k)$,
-$\pi_k = Pr(Y=k)$, $p_k(x) = Pr(X=x|Y=k)$,  so that 
+$\pi_k = Pr(Y=k)$, $p_k(x) = Pr(Y=k|X=x)$,  so that 
 $$p_k(x) = \frac{f_k(x)\pi_k}{\sum_j f_j(x)\pi_j}.$$
 * Terminology: 
     + $\pi_k$ is the _prior_ probability of class $k$
