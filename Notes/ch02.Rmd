@@ -369,12 +369,14 @@ where
     + $I(y_i \not= \hat{y}_i)$ is an indicator variable that is one if 
     $y_i \not= \hat{y}_i$ and zero if $y_i = \hat{y}_i$.
 * Equation (\ref{eqn:trainError}) is the training error rate. We are
-more interested in the test error rate
+more interested in the test error rate,
+which is an average of averages: First average
 \begin{equation}
 Ave(I(y_0 \not= \hat{y}_0))
 \label{eqn:testError}
 \end{equation}
-for new $(x_0,y_0)$.
+for new $(x_0,y_0)$, and then 
+average this over repeated samples of training data.
 
 ## The Bayes Classifier
 
