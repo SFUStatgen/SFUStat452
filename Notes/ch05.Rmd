@@ -165,7 +165,7 @@ $$ CV_{(k)} = \frac{1}{k} \sum_{i=1}^k {\rm MSE}_i.$$
 observation in each fold.
 * Computational trick for a linear model
 fit by least squares:
-$$CV_{(n)} = \frac{1}{n} \sum_{i=1}^n \left( \frac{y_i - \hat{y}_i}{1-h_i}\right),$$
+$$CV_{(n)} = \frac{1}{n} \sum_{i=1}^n \left( \frac{y_i - \hat{y}_i}{1-h_i}\right)^2,$$
 where $\hat{y}_i$ is the fitted value from the least
 squares fit and $h_i$ is the leverage of the $i$th 
 observation.
