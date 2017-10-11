@@ -1,0 +1,340 @@
+---
+title: "Homework 2"
+author: "Brad McNeney"
+date: '2017-10-04'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 3, #3, 6 marks)
+
+The prediction equation can be written as
+$$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1X_1+\hat{\beta}_2X_2 + \hat{\beta}_3X_3 + \hat{\beta}_4 X_1X_2 + \hat{\beta}_5 X_1X_3$$
+
+(a) (2 marks) Part iii is true:
+For fixed GPA $X_1=x_1$ and IQ $X_2=x_2$
+the estimated
+difference in average income between females ($X_3=1$)
+and males ($X_3=0$) is 
+$\hat{\beta}_3 + \hat{\beta_5}x_1 = 35 - 10x_1$ (1 mark).
+Thus males earn more on average if $x_1 > 3.5$; i.e., if 
+GPA is high enough (1 mark).  
+(b) (2 marks) Full marks for the prediction of 137.1:
+The prediction equation in females is 
+$\hat{y} = (50+35) + (20-10)x_1 + 0.07x_2+ 0.01x_1x_2$ (1 mark), 
+which for $x_1=4$ and $x_2=110$ is equal to 137.1:
+
+```{r}
+x1<-4;x2<-110
+yhat <- 85 + 10*x1 + 0.07*x2 + 0.01*x1*x2
+yhat
+```
+
+
+(c) (2 marks) False (1 mark). Without the standard
+error we cannot judge the evidence for interaction (1 mark).
+
+## Question 2 (Chapter 3, #9, 11 marks)
+
+```{r,message=FALSE,warning=FALSE}
+library(ISLR) 
+data(Auto)
+library(dplyr)
+Auto <- 
+  Auto %>% select(-name) %>% mutate(origin = factor(origin))
+head(Auto)
+```
+
+(a) (1 mark) You could have excluded the
+origin variable from the pair-wise scatterplot
+or not. If you include it, as below, 
+it gives some indication of the distribution of
+other variables by origin.
+
+```{r}
+pairs(Auto)
+```
+
+
+(b) (1 mark) 
+For correlations you should exclude `origin`. (You probably
+noticed an error if you did not.) I have rounded
+my correlations to three decimals for easier viewing,
+but this was not necessary.
+
+```{r}
+AutoNoOrigin <- select(Auto, -origin)
+round(cor(AutoNoOrigin),3)
+```
+
+(c) (3 marks)
+
+```{r}
+afit <- lm(mpg ~ ., data=Auto)
+summary(afit)
+```
+
+   i. (1 mark) The overal $F$-test with $p < 2.2e-16$ 
+   tells us there is a relationship between the
+   predictors and the response.
+   ii. (1 mark) Displacement, weight, year and 
+   origin appear to have a statistically significant
+   relationship to the response. (Note: Technically
+   you should do a partial F-test to test for
+   the origin effect, but it is very clear from
+   the tests of the individual coefficients 
+   that they are significantly different from zero,
+   so the test of both effects would reject 
+   the null hypothesis of no origin effect.)
+   iii. (1 mark) The coefficient for `year` is positive,
+   which suggests that newer cars have higher
+   `mpg`.
+
+(d) (3 marks)
+You were asked to use the `plot()` function, 
+rather than `ggplot()` and the 
+diagnostics we discussed in class. In the
+following I have interpreted the plots 
+as-is, without further diagnostics
+such as studentized residuals and 
+without calculating our rule-of-thumb 
+for the leverages. 
+
+```{r}
+plot(afit)
+```
+
+The residuals vs fitted plot suggests 
+a non-linear trend  and non-constant
+error variance (1 mark). The Q-Q plot suggests
+a heavy right tail in the residual distribution
+and possibly one or two extreme outliers
+(1 mark). The leverage plot suggests
+that case 14 has atypical leverage (1 mark).
+(Though it was not necessary to
+note this, the hat value for case 14 is about 0.194, 
+and the cut-off for very high leverage is 
+$3\times 9/392 = 0.0689$, so this point
+does qualify as very high leverage. Also not 
+necessary, but interesting: Case 14 is the Buick Estate
+Wagon, and according to Wikipedia its weight is
+about 5000 pounds, not 3086 as listed in our
+data. Looks like a data recording error, but 
+I haven't corrected it in my analyses.)
+
+(e) (1 mark) At a minimum you should 
+have fit the model with all interactions 
+and noted that some are significant.
+
+```{r}
+afitInt <- lm(mpg ~ .*.,data=Auto)
+round(summary(afitInt)$coefficients,3)
+```
+
+You might also have considered
+doing model reductions before fitting
+interactions. For example, 
+in what follows I've removed `acceleration` and
+then `cylinders`.
+
+```{r}
+afit2 <- lm(mpg ~ cylinders + displacement + horsepower + weight + year + origin, data= Auto)
+summary(afit2)$coefficients
+afit3 <- lm(mpg ~ displacement + horsepower + weight + year + origin, data= Auto)
+summary(afit3)$coefficients
+```
+
+The model with interactions (below) includes
+some significant interactions.
+
+```{r}
+AutoReduced <- select(Auto, -acceleration, -cylinders)
+afitInt <- lm(mpg ~ .*.,data=AutoReduced)
+round(summary(afitInt)$coefficients,3)
+```
+
+(f) (2 mark) To keep the investigation of transformations
+manageable, try transformations of the `weight` variable
+only.
+
+The problem does not make it clear whether we are
+to follow up on the model with interactions (part e)
+or the main effects model (part c). OK to use
+either. My interpretation of the question is
+that we are supposed to try different 
+transformations of the $X$'s to see
+if we can remedy the non-linear 
+trends in the residuals versus fitted values
+plot in part (d). 
+However, when I use the interaction model, and
+the reduced form of the Auto data
+without acceleration and cylinders, there 
+is no evidence of missed trends. There 
+are still suggestions of a heavy-tailed 
+residual distribution, but none of the
+transformations I checked help.
+Two marks for any sort of investigation. 
+You would could have created 
+the transformations with `mutate()`
+as in the following.
+
+```{r}
+AutologW <- Auto %>% 
+  mutate(logweight = log(weight)) %>%
+  select(-weight)
+plot(lm(mpg ~ .*.,data=AutologW))
+```
+
+
+
+## Question 3 (Chapter 4, #4, 7 marks)
+
+(a) (1 mark) I have been telling people to 
+interpet "... observations that are 
+within 10% of the range of $X$ closest to that
+test observation" as an interval of length 
+0.1, even if the observation is close to 0 or 1.
+Then the average fraction of available observations
+is 0.1.
+
+(b) (1 mark) 0.01 ($0.1^2$).
+
+(c) (1 mark) $1\times 10^{-100}$ ($0.1^{100}$)
+
+(d) (2 marks) We can see that the proportion of
+observations near an observation of interest
+decreases exponentially in $p$
+(1 mark) so that in high dimensions there
+are very few points near the observation of
+interest (1 mark).
+
+(e) (2 marks) 
+The hypercubes need to have area 0.1, so the 
+sides are of length 0.1 when $p=1$, $\sqrt{0.1} \approx 0.316$ when $p=2$ and $0.1^{1/100} \approx 0.977$
+when $p=100$ (1 mark). One other
+mark for a reasonable comment. Mine is:
+We see that to stay at 10% volume, the sides of the 
+cube must increase to nearly the entire
+width of the interval as $p$ increases.
+
+
+## Question 4 (Chapter 4, #10 parts (a)-(h), 9 marks)
+
+```{r}
+library(ISLR)
+data(Weekly)
+head(Weekly)
+```
+
+
+(a) (1 mark) Numerical summaries could include correlations 
+between `Volume`, the `LagX` variables and `Today`.
+Graphical summaries could be pairwise scatterplots.
+You should note a non-linear association 
+between `Year` and `Volume`, but little else.
+
+
+```{r}
+pairs(Weekly)
+```
+
+
+(b) (1 mark) 
+The logistic regression output is given 
+below. There is some 
+suggestion that the `Lag2` predictor is
+significantly associated with `Direction`.
+
+```{r}
+wfit <- glm(Direction ~ Volume+Lag1+Lag2+Lag3+Lag4+Lag5,
+            data=Weekly,family=binomial())
+round(summary(wfit)$coefficients,3)
+```
+
+
+(c) (2 marks)
+In the code chunk below I've re-used the 
+`predDir()` function from the week5 exercises
+(1 mark).
+Note: We are asked to report the proportion
+of **correct** predictions. You should note
+from the confusion matrix that the predictions
+are more accurate when the market went up, than
+down (1 mark). You could describe this as good
+sensitivity but poor specificity, or say 
+that both the true positive rate and false
+positive rates are high. However, it
+was not necessary to use these terms.
+
+```{r}
+predDir <- function(fit,dat) {
+  probs <- predict(fit,newdata=dat,type="response")
+  n <- nrow(dat) # Data used to fit
+  pp <- rep("Down",n)
+  pp[probs>0.5] <- "Up"
+  pp
+}
+Weekly <- mutate(Weekly,predDirection = predDir(wfit,Weekly))
+xtabs(~ predDirection+Direction, data=Weekly)
+with(Weekly,mean(predDirection == Direction))
+```
+
+(d) (1 mark)
+
+```{r}
+train <- (Weekly$Year <= 2008)
+Weekly.train <- Weekly[train,]
+Weekly.test <- Weekly[!train,]
+wfit <- glm(Direction~Lag2,
+            data=Weekly.train, family=binomial())
+Weekly.test <- mutate(Weekly.test, 
+                       predDirection = predDir(wfit,Weekly.test))
+xtabs(~predDirection + Direction,data=Weekly.test)
+with(Weekly.test,mean(predDirection == Direction)) 
+```
+
+(e) (1 mark)
+
+```{r}
+library(MASS)
+wfit <- lda(Direction ~ Lag2, data=Weekly.train)
+preds <- predict(wfit,newdata=Weekly.test)$class
+Weekly.test <- mutate(Weekly.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Weekly.test)
+with(Weekly.test,mean(predDirection == Direction)) 
+```
+
+(f) (1 mark)
+
+```{r}
+wfit <- qda(Direction ~ Lag2, data=Weekly.train)
+preds <- predict(wfit,newdata=Weekly.test)$class
+Weekly.test <- mutate(Weekly.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Weekly.test)
+with(Weekly.test,mean(predDirection == Direction)) 
+```
+
+(g) (1 mark)
+
+```{r}
+library(class) 
+train.X <- dplyr::select(Weekly.train,Lag2)
+test.X <- dplyr::select(Weekly.test,Lag2)
+train.Direction <- Weekly.train$Direction
+set.seed(1) # for randomly breaking neighbor ties
+preds <- knn(train=train.X,test=test.X,cl=train.Direction,k=1)
+Weekly.test <- mutate(Weekly.test,predDirection = preds)
+xtabs(~predDirection + Direction,data=Weekly.test)
+with(Weekly.test,mean(predDirection == Direction)) 
+```
+
+(h) (1 mark) Logistic regression and LDA
+give the same results and are the best 
+method for these data.
+
+(i) DO NOT HAND IN THIS PART (though you are, of course,
+free to do it on your own).
