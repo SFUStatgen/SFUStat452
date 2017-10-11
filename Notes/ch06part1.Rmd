@@ -202,8 +202,8 @@ best from $\mathcal{M}_0,\ldots,\mathcal{M}_p$.
 ## Advantages and Disadvantages of Backward Selection
 
 * Advantage:
-    + Same computation as backward selection.
-    Only fits $1 = p(p+1)/2$ models.
+    + Same computation as forward selection.
+    Only fits $1 + p(p+1)/2$ models.
 * Disadvantage:
     + Not guaranteed to find the best model.
 
@@ -241,7 +241,7 @@ predictors is defined as
 $$C_p = \frac{1}{n}({\rm RSS} + 2d\hat{\sigma}^2)$$
 or
 $$C'_p = \frac{1}{n\hat{\sigma}^2}({\rm RSS} + 2d\hat{\sigma}^2)$$
-where $\sigma^2$ is an estimate of $\sigma^2$
+where $\hat{\sigma}^2$ is an estimate of $\sigma^2$
 from a low-bias model.
 * The form of $C_p$ is RSS plus penalty.
 
