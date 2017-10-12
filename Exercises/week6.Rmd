@@ -102,7 +102,7 @@ the following arguments:
     (c) The number of folds `k`
     (d) a random seed `seed`
 
-and returns the estimated test error by k-fold 
+and return the estimated test error by k-fold 
 cross validation. Test your function to make sure
 it returns the same estimate as in part (2).
 Then call your function two or three more
