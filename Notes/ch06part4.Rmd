@@ -87,7 +87,7 @@ par(opar)
 ```
 
 
-##  High-Dimensional Regression ($n \gg p$)
+##  High-Dimensional Regression ($p \gg n$)
 
 * When $p>n$ least squares has no unique solution.
 * Other methods, such as forward selection, Lasso and PCR are useful.
