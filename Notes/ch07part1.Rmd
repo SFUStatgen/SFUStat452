@@ -143,10 +143,14 @@ ggplot(Wage,aes(x=age,y=wage)) + geom_point(alpha=0.1) +
 
 ## Classification Example: Wage $>$ 250K
 
+* No top-earners less than about 25 or older than about 
+65, so need to re-do the age breaks.
+
 \scriptsize
 
 ```{r}
 library(dplyr)
+agebreaks <- c(15,30,35,40,45,50,55,60,80)
 wfit <- glm(wage250 ~ cut(age,agebreaks),data=Wage,family=binomial())
 wpred <- data.frame(newWage,
              predict(wfit,newdata=newWage,se.fit=TRUE)) # predicted logits
@@ -154,7 +158,6 @@ expit <- function(x) { exp(x)/(1+exp(x)) }
 wpred <- mutate(wpred,
                 lwr=expit(fit-2*se.fit),upr=expit(fit+2*se.fit),
                 fit = expit(fit))
-# Don't go below 0 or above 1
 head(wpred,n=3)
 ```
 
