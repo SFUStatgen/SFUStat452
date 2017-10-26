@@ -1,0 +1,95 @@
+---
+title: "Homework 3"
+author: "name1 and name2 and name3"
+date: '2017-10-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 6, #8, parts (a)-(e), 10 marks)
+
+
+(a) (1 mark)
+(Note: You should set your random seed, for reproducibility.)
+
+(b) (1 mark)
+
+
+(c) (3 marks)
+For the "best model obtained", you should 
+use one that is parsimonious and close to
+the consensus best according tht the three
+selection criteria.
+
+You don't **have** to create a data frame. 
+`regsubsets()` can take a design matrix and
+response vector, just like `lm.fit()` and 
+`glmnet()`. If you do decide to create a data frame,
+the following hint may be of use:
+```{r}
+library(leaps)
+pmax <- 10
+Xmat <- matrix(NA,nrow=n,ncol=pmax)
+for(i in 1:pmax) {
+  Xmat[,i] <- X^i
+}
+colnames(Xmat) <- paste0("X.",1:pmax)
+dat <- data.frame(Y,Xmat)
+```
+
+
+(d) (2 marks) 
+
+
+(e) (3 marks)
+
+```{r}
+library(glmnet)
+lambdas <- 10^{seq(from=-2,to=5,length=100)}
+cv.lafit <- cv.glmnet(Xmat,Y,alpha=1,lambda=lambdas) 
+plot(cv.lafit)
+la.best.lam <- cv.lafit$lambda.1se
+la.best.lam
+la.best <- glmnet(Xmat,Y,alpha=1,lambda=la.best.lam)
+coef(la.best)
+```
+
+
+## Question 2 (Ch6, #9, 12 marks)
+
+(a) (0 marks)
+To make everyone's results comparable, please
+select your test set with the following.
+
+```{r}
+library(ISLR)
+data(College)
+dim(College) # 777 rows, use 111 as test
+set.seed(1)
+testset <- sample(1:777,size=111)
+College.test <- College[testset,]
+College.train <- College[-testset,]
+```
+
+(b) (2 marks)
+
+(c) (2 marks)
+
+(d) (2 marks)
+
+(e) (2 marks)
+
+(f) (2 marks)
+
+(g) (2 marks)
+
+
+## Question 3 (Ch7, #6, 8 marks)
+
+(a) (5 marks)
+
+(b) (3 marks)

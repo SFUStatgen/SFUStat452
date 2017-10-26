@@ -274,19 +274,25 @@ plot(cv.rrfit,ylim=c(9000,12000))
 across the ten folds. 
 * Hastie & co. (ESL, page 216)
 advocate the "one-standard-error" rule: Use the most 
-parsimonious model whose error is no more than 
+parsimonious model (largest $\lambda$)
+whose error is no more than 
 one SD above the error of the best model.
 * Acknowledges that the MSEs are only estimates.
     + Rather _ad hoc_ rule though.
-* In this example, the best model **is** the
-most parsimonious.
+    
+\scriptsize
+
+```{r}
+cv.rrfit$lambda.min; cv.rrfit$lambda.1se
+```
+
 
 ## Fitted Model with Best $\lambda$
 
 \scriptsize
 
 ```{r}
-rr.best.lam <- cv.rrfit$lambda.min
+rr.best.lam <- cv.rrfit$lambda.1se
 rr.best.lam
 rr.best <- glmnet(Xfull,Y,alpha=0,lambda=rr.best.lam)
 coef(rr.best)
@@ -313,33 +319,20 @@ plot(cv.lafit,ylim=c(8000,13000))
 
 ##
 
-* Shouldn't we choose $\lambda=0.01$ here too?
-
-##
-
 \scriptsize
 
 ```{r}
-la.best.lam <- cv.lafit$lambda.min
+la.best.lam <- cv.lafit$lambda.1se
 la.best.lam
-la.best <- glmnet(Xfull,Y,alpha=0,lambda=la.best.lam)
+la.best <- glmnet(Xfull,Y,alpha=1,lambda=la.best.lam)
 coef(la.best)
 ```
 
 ## Summary of Credit Data
 
-* Shrinkage estimation did little.
-* We'd probably just use the least-squares
-estimates and SEs:
-    + Though we know model selection methods found
-    a model with better MSE than the full model 
+* Ridge regression shrinks, but is not very interpretable.
+* Lasso shrinks and selects variables.
+    + The lasso solution is similar to the best model 
+    found by model selection methods 
     (see week 6 exercises).
-
-\scriptsize
-
-```{r}
-lsfit <- lm(Balance ~ ., data=Credit)
-round(summary(lsfit)$coefficients,3)
-```
-
 
