@@ -178,6 +178,7 @@ data are scarce.
 \scriptsize
 
 ```{r,fig.height=2.5}
+set.seed(1)
 Wage.sub <- rbind(Wage[sample(1:nrow(Wage),50),c("wage","age")],
                   c(100,75))
 fit <- lm(wage ~ bs(age,knots=knots),data=Wage.sub)
