@@ -171,13 +171,13 @@ plotfit(fit,Wage,newdat)
 
 ## Constraints Outside the Knots
 
-* Splines can suffer from high variance in regions where
-data is scarce.
+* Estimated splines curves have high variance where
+data are scarce.
 * Illustrate by sampling from the wage data.
 
 \scriptsize
 
-```{r}
+```{r,fig.height=2.5}
 Wage.sub <- rbind(Wage[sample(1:nrow(Wage),50),c("wage","age")],
                   c(100,75))
 fit <- lm(wage ~ bs(age,knots=knots),data=Wage.sub)
@@ -194,7 +194,7 @@ of reducing variance.
 
 \scriptsize
 
-```{r}
+```{r,fig.height=2.5}
 fit <- lm(wage ~ ns(age,knots=knots),data=Wage.sub)
 plotfit(fit,Wage.sub,newdat)
 ```
