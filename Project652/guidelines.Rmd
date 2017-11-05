@@ -51,9 +51,6 @@ the steps you took to estimate test error.
 ## Grading Criteria
 
 The criteria for the report are as follows.
-[Whether or not the project includes a review of 
-another student's report, worth
-an additional 5 marks, is still pending.]
 
 ### Report (25 marks)
 
