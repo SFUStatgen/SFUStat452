@@ -69,7 +69,6 @@ select your test set with the following.
 library(ISLR)
 data(College)
 library(dplyr)
-# Standardize columns
 College <- mutate(College,Private = as.numeric(Private=="Yes"))
 College <- data.frame(lapply(College,scale))
 dim(College) # 777 rows, use 111 as test

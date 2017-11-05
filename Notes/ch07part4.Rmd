@@ -134,7 +134,8 @@ use the F-test to compare models.
 \scriptsize
 
 ```{r}
-gfit4 <- gam(wage ~ + year + s(age,4) + education,data=Wage)
+gfit4 <- gam(wage ~  year + s(age,4) + education,data=Wage)
+anova(tem,gfit3)
 anova(gfit4,gfit3)
 ```
 
