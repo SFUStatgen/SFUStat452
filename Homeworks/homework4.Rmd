@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Question 1 (Chapter 8, #11, 7 marks)
+## Question 1 (Chapter 8, #11, 9 marks)
 
 
 (a) (1 mark)
@@ -19,15 +19,15 @@ knitr::opts_chunk$set(echo = TRUE)
 (b) (3 marks)
 
 
-(c) (3 marks)
+(c) (5 marks)
 
 
-## Question 2 (Ch9, #7, 9 marks)
+## Question 2 (Ch9, #7, 11 marks)
 
 (a) (1 mark)
 
 (b) (3 marks)
 
-(c) (3 marks)
+(c) (5 marks)
 
 (d) (2 marks)
