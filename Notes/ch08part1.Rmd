@@ -162,7 +162,7 @@ poor predictions on test data.
 in the RSS becomes "small".
 * But stopping may miss good splits lower in the 
 tree that reduce RSS.
-* Strategy is to grow a big tree,$ T_0$, and then "prune" it;
+* Strategy is to grow a big tree, $T_0$, and then "prune" it;
 i.e., successively remove branches.
 
 ## Illustration of Pruning
@@ -205,6 +205,8 @@ with one branch removed.
 an algorithm for finding the $\alpha_1$ that 
 will yield a new optimal tree and finding 
 this new optimal tree.
+    + New tree: Collapse the internal node that produces the 
+    smallest increase in RSS.
 * We end up with a sequence of $\alpha$-values
 $\alpha_0=0,\alpha_1,\ldots,\alpha_k$ for some $k$,
 and corresponding best trees 
@@ -229,9 +231,9 @@ $\alpha$.
 
 ## Estimated MSE
 
-* Authors split Hitters into a 132 training and
+* Split Hitters into 132 training and
 131 test obs'ns.
-* Applied CV to the training half to select $\alpha$,
+* Apply CV to the training half to select $\alpha$,
 or equivalently $|T|$.
     + CV is a "reasonable approximation of the test error".
 
@@ -245,7 +247,7 @@ or equivalently $|T|$.
 
 * Text, Fig. 8.5:
 MSE based on training (black), test set (orange) 
-or CV (green). Based on CV take $|T|=3$.
+or CV (green). (No details on SEs.) Based on CV take $|T|=3$.
 
 
 ## Classification Trees
@@ -258,7 +260,7 @@ common class in the region.
 of heterogeneity within the region.
     + Instead of RSS, use classification error rate
     as measure of heterogeneity?
-* Turns out classification error is not sensitive
+* Classification error is not sensitive
 enough for tree growing.
 * Instead prefer the Gini index 
 $$G_m = \sum_{k=1}^K \hat{p}_{mk} (1-\hat{p}_{mk})$$
