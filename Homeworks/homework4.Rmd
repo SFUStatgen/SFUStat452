@@ -1,0 +1,33 @@
+---
+title: "Homework 4"
+author: "name1 and name2 and name3"
+date: '2017-11-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 8, #11, 9 marks)
+
+
+(a) (1 mark)
+(Note: You should set your random seed, for reproducibility.)
+
+(b) (3 marks)
+
+
+(c) (5 marks)
+
+
+## Question 2 (Ch9, #7, 11 marks)
+
+(a) (1 mark)
+
+(b) (3 marks)
+
+(c) (5 marks)
+
+(d) (2 marks)
