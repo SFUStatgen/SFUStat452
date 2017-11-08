@@ -32,10 +32,13 @@ of the categorical variables `ChestPain` and `Thal` and
 the quantitative variable `MaxHR`. In your model, 
 specify a degree 4 smoothing spline for `MaxHR`.
     + Print a model summary. Note the degrees of freedom
-    for the nonparametric effects ANOVA. This is the 
+    for the nonparametric effects ANOVA. 
+    This is the 
     difference between the df for the fitted smoothing spline
-    and a **linear** term (not for testing the overall effect
-    of the smoothing spline, as I said in class). 
+    and the df for a **linear** term. The 
+    nonparametric test is for testing the non-linear component,
+    not the overall effect
+    of the smoothing spline, as I said in class. 
     In the ANOVA for the parametric effects,
     the single df test is for the **linear** effect of `MaxHR`.
     + Plot results with standard errors and comment on the fitted terms.
