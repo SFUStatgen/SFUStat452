@@ -156,6 +156,8 @@ Gini for classification) is decreased by splitting on the variable.
 
 \scriptsize
 
+<!-- for next time, set a seed in this chunk for repro in Ch08part3 -->
+
 ```{r}
 uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Heart.csv")
 Heart <- read.csv(uu,row.names=1)
@@ -211,9 +213,13 @@ bag.heart
 
 \scriptsize
 
-```{r,fig.height=4.5,fig.width=7}
+```{r,fig.height=4.3,fig.width=7}
 varImpPlot(bag.heart) # or importance(bag.heart)
 ```
+
+\normalsize
+
+* See `help("importance")` for a definition of accuracy.
 
 ## Classification Error for Bagged Trees
 
@@ -231,8 +237,9 @@ table(bag.hpred,Heart[-train,]$AHD)
     + E.G., if we have one or two strong predictors, all trees
     might share the first few splits.
 * Random forests avoid this by restricing the predictors 
-to a random subset for each bootstrap sample.
-    + Instead of all $p$, use, say, $\sqrt{p}$.
+to a random subset.
+    + New subset at each split.
+    + Subset size? Text: "... typically we choose  $m\approx\sqrt{p}$".
 
 ## Random Forests on Heart Data
 
@@ -268,11 +275,12 @@ error has stabilized.
 \vspace*{-.4in}
 
 \begin{center}
-\includegraphics[height=2.8in]{Fig8_8.pdf}
+\includegraphics[height=2.6in]{Fig8_8.pdf}
 \end{center}
 
 \vspace*{-.4in}
 
 \small
 
-* Text, Fig. 8.8
+* Text, Fig. 8.8   
+Note OOB error, lower than test error, but convenient.
