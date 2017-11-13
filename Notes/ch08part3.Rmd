@@ -170,7 +170,7 @@ choose it by cross-validation.
 experience has shown that it is better to 
 take a large $M$ and shrink the contributions of each
 tree by a factor $\lambda$; that is,
-take $f_m(x) = f_{m-1}(x) + T(x;\gamma_m)$.
+take $f_m(x) = f_{m-1}(x) + \lambda T(x;\gamma_m)$.
 
 ##
 
