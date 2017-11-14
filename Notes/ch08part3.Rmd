@@ -44,7 +44,7 @@ to give final predictions.
 * Combine predictions with a weighted majority 
 vote 
 $$G(x) = {\rm sign} \left( \sum_{m=1}^M \alpha_m G_m(x) \right),$$
-which classifis as $1$ if the weighted sum is $>0$ and $-1$ otherwise.
+which classifies as $1$ if weighted sum $>0$ and $-1$ otherwise.
     + The classifier weights $\alpha_m$ are computed by the algorithm to
     give higher weight to more accurate classifiers.
 * Modify the data at each boosting step 
@@ -78,9 +78,9 @@ by applying observation weights $w_1,\ldots,w_n$.
 $$f(x;\alpha,\gamma) = \sum_{m=1}^M \alpha_m b(x;\gamma_m)$$
 * We would like to find the coefficients
 $\alpha=(\alpha_1,\ldots,\alpha_M)$
-and $\gamma = (\gamma_1,\ldots,\gamma_M)$.
+and $\gamma = (\gamma_1,\ldots,\gamma_M)$
 that minimize a "loss function", 
-$$\sum_{i=1}^n L(y_i,f(x_i;\alpha))$$
+$$\sum_{i=1}^n L(y_i,f(x_i;\alpha)).$$
 * We are used to the squared-error loss $L(y,f(x)) = (y-f(x))^2$,
 but others are possible.
 
@@ -123,7 +123,7 @@ and take $f_m(x) = f_{m-1}(x) + T(x;\gamma_m)$.
     
 ## Boosting Regression Trees
 
-* If a regression tree and the loss squared-error, 
+* If a regression tree and the loss is squared-error loss, 
 \begin{eqnarray*}
 L(y_i,f_{m-1}(x_i)+T(x_i;\gamma)) & = &
 (y_i-f_{m-1}(x_i)-T(x_i;\gamma))^2 \\
@@ -132,7 +132,7 @@ L(y_i,f_{m-1}(x_i)+T(x_i;\gamma)) & = &
 \end{eqnarray*}
 where $r_i^{(m-1)}$ is the $i$th residual
 from step $m-1$.
-* Solve (\ref{eqn:boostCrit}) by fitting a tree 
+* Solve (\ref{eqn:boostCrit}) by fitting a tree to
 the residuals (Our text, Alg. 8.2).
 * Note: As a basis function, $T(x;\gamma)$ could,
 in general, depend on all predictors, which
@@ -150,6 +150,10 @@ the solution to (\ref{eqn:boostCrit}) is more challenging.
 ideas from optimization is called gradient boosting.
     + A description is beyond the scope of this course.
     + We use the implementation in the `gbm` package.
+    + A more modern implementation of boosting trees is
+    in the package `xgboost` (eXtreme Gradient Boosting).
+    More flexible, computations highly optimized and parallelized,
+    but same basic idea.
     
 ## Choosing the Depth of the Trees
 
@@ -191,7 +195,7 @@ had test-set misclassification rate about 27%,
 
 \scriptsize
 
-```{r,echo=FALSE}
+```{r,echo=FALSE,include=FALSE}
 uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Heart.csv")
 Heart <- read.csv(uu,row.names=1)
 Heart <- na.omit(Heart)
@@ -233,10 +237,11 @@ table(boo.hpred,Heart[-train,]$AHD)
 
 ## Change Shrinkage
 
+\scriptsize
 
 ```{r}
 hboost <- gbm(I(AHD=="Yes") ~ ., data=Heart[train,],
-              n.trees=5000,distributio="bernoulli",shrinkage=.2)
+              n.trees=5000,distribution="bernoulli",shrinkage=.2)
 boo.hpred <- predict(hboost,newdata=Heart[-train,],
                      n.trees=5000,type="response")
 boo.hpred <- (boo.hpred>0.5)

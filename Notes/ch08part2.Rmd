@@ -275,12 +275,14 @@ error has stabilized.
 \vspace*{-.4in}
 
 \begin{center}
-\includegraphics[height=2.6in]{Fig8_8.pdf}
+\includegraphics[height=2.3in]{Fig8_8.pdf}
 \end{center}
 
 \vspace*{-.4in}
 
 \small
 
-* Text, Fig. 8.8   
-Note OOB error, lower than test error, but convenient.
+* Text, Fig. 8.8. Not clear what "Test" error is based on, possibly
+from a hold-out validation sample.
+OOB error is lower than test error. Perhaps because the trees
+are based on more data (size $n$ bootstrap samples).
