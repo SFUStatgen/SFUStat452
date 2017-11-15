@@ -1,0 +1,63 @@
+---
+title: "Week 11 Exercises"
+author: "Brad McNeney"
+date: '2017-11-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will use the `Heart` data set, split into roughly equal-size
+training and test sets. There is a short quiz on Canvas named
+`Week 11 Tutorial Quiz` for you to fill out after doing these questions.
+
+```{r}
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Heart.csv")
+Heart <- read.csv(uu,row.names=1)
+Heart <- na.omit(Heart)
+# Some variables are factors. Some are not but probably should be:
+unlist(lapply(Heart,is.factor))
+unlist(lapply(Heart,{function(x) length(unique(x))}))
+library(dplyr)
+Heart <- mutate(Heart,
+                RestECG = factor(RestECG),
+                Slope = factor(Slope),
+                Ca = factor(Ca))
+n.train <- ceiling(nrow(Heart)/2)
+set.seed(1)
+train <- sample(1:nrow(Heart),size=n.train,replace=FALSE)
+```
+
+1. Fit a GAM to the training data with `AHD` as the binary 
+response and all other variables as explanatory variables.
+Fit smooths, `s()`, for the variables
+`Age`, `RestBP`, `Chol`, `MaxHR` and `Oldpeak`. Use this 
+model to predict `AHD` in the test set using the 
+probability threshold 0.5. Calculate the misclassification 
+rate. Enter your rate on the Canvas quiz.
+
+
+2. Fit a boosted tree model to the training data with `AHD` as the binary 
+response and all other variables as explanatory variables. Use
+500 trees and the default shrinkage value. Before calling 
+`gmb()`, set the random seed to 1.
+Use the boosted tree 
+model to predict `AHD` in the test set using the 
+probability threshold 0.5. 
+(Note: The `predict()` method for `gbm` objects
+requires that you specify the number of trees.)
+Calculate the misclassification 
+rate. Enter your rate on the Canvas quiz.
+
+
+3. Fit a support vector machine with radial kernel
+to the training data with 
+`AHD` as the binary 
+response and all other variables as explanatory variables. 
+Use the `gamma=1/2` and `cost=1`.
+Use the SVM to predict `AHD` in the test set.
+Calculate the misclassification 
+rate. Enter your rate on the Canvas quiz.
+
