@@ -164,7 +164,7 @@ the margin.
 
 ## Example Support Vector Classifier for the Heart Data
 
-* Use the `svm()` function from the `e1071` package fits
+* The `svm()` function from the `e1071` package fits
 support vector machines.
     + Set argument `kernel=linear` for the support vector classifier. 
 
@@ -263,8 +263,8 @@ through $n(n-1)/2$ values of $K(x_i,x_{i'})$.
 ## Example Decision Boundaries for Polynomial and Radial Kernels
 
 * Figure 9.9. Left panel is from the polynomial kernel 
-with $d=3$; right panel is from a radial kernel with 
-unknown $\gamma$.
+with $d=3$; right panel is from a radial kernel 
+(value of $\gamma$ not given).
 
 \vspace*{-.25in}
 
