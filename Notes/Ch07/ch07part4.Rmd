@@ -6,7 +6,7 @@ date: '2017-10-31'
 output: 
   beamer_presentation:
     includes:
-      in_header: header_pagenum.tex
+      in_header: ../header_pagenum.tex
 ---
 
 ```{r setup, include=FALSE}
