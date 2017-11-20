@@ -199,8 +199,7 @@ biplot(pcout,cex=.5,scale=0) #scale=0 avoids scaling of points on plot
 ##
 
 * Note different appearance from text: PCs are only unique 
-up to rotation 
-    + That is, any rotation of the plot is considered equivalent.
+up to a sign change
 
 
 
