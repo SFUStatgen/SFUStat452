@@ -1,0 +1,288 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 8, Part 2: Bagging and Random Forests'
+author: "Brad McNeney"
+date: '2017-11-06'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.width=5)
+```
+
+## Example: The Hitters Data Set
+
+* Example tree grown, but not pruned.
+
+\scriptsize
+
+```{r}
+library(ISLR)
+data(Hitters)
+library(dplyr)
+Hitters <- mutate(Hitters,lSalary = log(Salary)) %>% 
+  select(-Salary) %>%
+  na.omit()
+library(tree)
+t1 <- tree(lSalary ~ .,data=Hitters)
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=5,fig.width=5}
+plot(t1)
+text(t1,cex=.5)
+```
+
+## Bootstrapping 
+
+* A bootstrap sample from $n$ observations is obtained 
+by drawing $n$ observations, with replacement, from 
+the sample
+
+\scriptsize
+
+```{r}
+set.seed(543)
+n <- 6
+x <- round(rnorm(n),1)
+sort(x)
+sort(sample(x,size=n,replace=TRUE)) # bootstrap sample 1, 
+sort(sample(x,size=n,replace=TRUE)) # bootstrap sample 2
+sort(sample(x,size=n,replace=TRUE)) # bootstrap sample 3
+```
+
+## Empirical Distribution
+
+* The data-generating process in our example is a normal distribution.
+* The empirical distribution of our sample is the distribution
+under which each sampled value is equally likely.
+* Resampling amounts to sampling from the empirical distribution.
+* If empirical close to data-generating distribution, 
+resampled samples are like new samples from the data-generating 
+distribution.
+
+## Example: Tree from a Bootstrap Sample
+
+\scriptsize
+
+```{r}
+# Use sample_n() from dplyr
+n <- nrow(Hitters)
+bHitters <- sample_n(Hitters,size=n,replace=TRUE)
+t1b <- tree(lSalary ~ .,data=bHitters)
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=5,fig.width=5}
+plot(t1b)
+text(t1b,cex=.5)
+```
+
+
+## Bootstrap Aggregation (Bagging)
+
+* For a general statistical learning method that 
+provides an estimate, $\hat{f}(x)$ of the model $f(x)$,
+we can aggregate over estimates fit to bootstrap samples.
+* If $\hat{f}^b(x)$ is the fitted model from the $b$th 
+bootstrap sample, the aggregate estimator is
+$$\hat{f}_{\rm avg}(x) = \frac{1}{B}\sum_{b=1}^B \hat{f}^b(x),$$
+where $B$ is the number of bootstrap samples.
+* Bagging has been found to be useful for improving 
+predictions from decision trees.
+    + Grow each tree "deep" and don't prune.
+    + Average predictions over trees.
+  
+
+## Bias-Variance Tradeoff
+
+* The deeply-grown trees have high variance, but low bias.
+* Averaging many deep trees is an attempt to reduce the
+variance.
+* However, if trees are highly correlated (e.g., similar first 
+few splits) then averaging does not reduce variance.
+    + Return to this point when we discuss random forests.
+    
+
+
+## Bagging for Classification
+
+* When the outcome $Y$ is categorical, one approach to
+the aggregate prediction of category is the "majority vote":
+    + Record the predicted class from each tree (each 
+    bootstrap sample) and take the most common prediction
+    as the aggregate prediction.
+    
+## Estimating Test Error with Out-of-Bag (OOB) Observations
+
+* On average about 2/3 are and 1/3 of observations are not resampled
+    + See small bootstrap samples of size 6 above.
+* Those not resampled are called out-of-bag (OOB)
+* Regression trees: The OOB prediction for the $i$th observation
+is the average of its predicted values from trees grown
+on boostrap samples that did not include $i$.
+    + The OOB MSE is the average squared error between  observed
+    values and their OOB predictions.
+* Classification trees: The OOB prediction for the $i$th observation
+is the majority vote from trees grown on bootstrap samples that did
+not include $i$.
+    + The OOB classification error is the proportion of misclassified
+    OOB predictions. 
+* OOB errors are valid because the predictions use only trees not
+fit to the corresponding observation.
+    
+## Variable Importance
+
+* There isn't one tree to interpret now.
+* Need an overall measure of the importance of a variable.
+* For a single tree, a variable's importance can be measured
+by the amount that the node homogeneity (RSS for regression,
+Gini for classification) is decreased by splitting on the variable. 
+    + Homogeneity of tree including variable 
+    minus homogeneity if variable was not available
+    to split on.
+    
+
+## Example: Heart Data
+
+\scriptsize
+
+<!-- for next time, set a seed in this chunk for repro in Ch08part3 -->
+
+```{r}
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Heart.csv")
+Heart <- read.csv(uu,row.names=1)
+Heart <- na.omit(Heart)
+dim(Heart) # Train on 2/3, test on 1/3
+train <- sample(1:nrow(Heart),size=2*nrow(Heart)/3,replace=FALSE)
+t1 <- tree(AHD ~ ., data=Heart,subset=train)
+```
+
+## 
+
+\scriptsize
+
+```{r,fig.height=5,fig.width=6}
+plot(t1)
+text(t1,cex=.5,pretty=0)
+```
+
+##
+
+\scriptsize
+
+```{r}
+cv.t1 <- cv.tree(t1,FUN=prune.misclass) # use class'n err for CV
+plot(cv.t1) # Suggest size 4
+```
+
+## 
+
+\scriptsize
+
+```{r}
+t1.best <- prune.tree(t1,best=4)
+summary(t1.best)
+hpred <- predict(t1.best,newdata=Heart[-train,],type="class")
+table(hpred,Heart[-train,]$AHD)
+28/nrow(Heart[-train,])
+```
+
+## Bagging on Heart Data
+
+\scriptsize
+
+```{r}
+library(randomForest)
+set.seed(1)
+bag.heart <- randomForest(AHD ~ ., data=Heart,subset=train,
+                          mtry=13,importance=TRUE)
+bag.heart
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=4.3,fig.width=7}
+varImpPlot(bag.heart) # or importance(bag.heart)
+```
+
+\normalsize
+
+* See `help("importance")` for a definition of accuracy.
+
+## Classification Error for Bagged Trees
+
+\scriptsize
+
+```{r}
+bag.hpred <- predict(bag.heart,newdata=Heart[-train,],type="class")
+table(bag.hpred,Heart[-train,]$AHD)
+18/nrow(Heart[-train,])
+```
+
+## Random Forests
+
+* Bootstrap datasets may yield correlated trees.
+    + E.G., if we have one or two strong predictors, all trees
+    might share the first few splits.
+* Random forests avoid this by restricing the predictors 
+to a random subset.
+    + New subset at each split.
+    + Subset size? Text: "... typically we choose  $m\approx\sqrt{p}$".
+
+## Random Forests on Heart Data
+
+\scriptsize
+
+```{r}
+bag.heart <- randomForest(AHD ~ ., data=Heart,subset=train,
+                          mtry=sqrt(13),importance=TRUE)
+bag.heart
+bag.hpred <- predict(bag.heart,newdata=Heart[-train,],type="class")
+table(bag.hpred,Heart[-train,]$AHD)
+17/nrow(Heart[-train,]) # Lowest so far.
+```
+
+##
+
+\scriptsize
+
+```{r,fig.height=4.5,fig.width=7}
+varImpPlot(bag.heart) # or importance(bag.heart)
+```
+
+* Chest pain still most important, but not by such
+a wide margin.
+
+## Number of Trees
+
+* Bagging and random forests are not very sensitive to the number
+of trees $B$.
+* Can try different values and make sure $B$ large enough that
+error has stabilized.
+
+\vspace*{-.4in}
+
+\begin{center}
+\includegraphics[height=2.3in]{Fig8_8.pdf}
+\end{center}
+
+\vspace*{-.4in}
+
+\small
+
+* Text, Fig. 8.8. Not clear what "Test" error is based on, possibly
+from a hold-out validation sample.
+OOB error is lower than test error. Perhaps because the trees
+are based on more data (size $n$ bootstrap samples).
