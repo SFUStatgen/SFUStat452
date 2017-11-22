@@ -1,0 +1,51 @@
+---
+title: "Week 12 Exercises"
+author: "Brad McNeney"
+date: '2017-11-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will perform PCA on the
+the `decathlon` data set from the `FactoMineR` package.
+There is a short quiz on Canvas named
+`Week 12 Tutorial Quiz` for you to fill out after doing these questions.
+
+
+```{r}
+library(FactoMineR) #install.packages("FactoMineR")
+data(decathlon)
+head(decathlon)
+library(dplyr)
+# Data processing strips off row names. Save for later.
+rnames <- rownames(decathlon)
+# Extract Olympics competition
+rnames <- rnames[decathlon$Competition=="OlympicG"]
+decathlon <- filter(decathlon,Competition=="OlympicG") 
+# Extract data on the 10 events.
+decathlon <- decathlon[,1:10] # Extract data on the 10 events.
+# In most events, a high score is good, but the opposite is true for running.
+# Change the running to scores where high is good by subtracting the times from
+# the maximum time
+diffmax <- function(x) { max(x)-x }
+decathlon <- mutate(decathlon,
+                    `100m` = diffmax(`100m`),
+                    `400m` = diffmax(`400m`),
+                    `110m.hurdle` = diffmax(`110m.hurdle`),
+                    `1500m` = diffmax(`1500m`))
+rownames(decathlon) <- rnames
+```
+
+(1) Perform PCA on the data without centering or scaling. Interpret the first PC.
+
+
+(2) Perform PCA on the centered and scaled data. Interpret the first PC.
+
+(3) Perform a scree plot for the PCA of part (2). 
+Is there a clear "elbow" in the plot?
+
+(4) Perform a biplot of the PCA in part (2). Are there
+any obvious clusters of individuals?
