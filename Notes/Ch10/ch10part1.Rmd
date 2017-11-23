@@ -1,6 +1,6 @@
 ---
 title: 'Statistics 452: Statistical Learning and Prediction'
-subtitle: 'Chapter 10: Introduction to Unsupervised Learning'
+subtitle: 'Chapter 10, part 1: Introduction to Unsupervised Learning'
 author: "Brad McNeney"
 date: '2017-11-16'
 output: 

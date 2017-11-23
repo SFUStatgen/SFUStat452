@@ -1,6 +1,6 @@
 ---
 title: 'Statistics 452: Statistical Learning and Prediction'
-subtitle: 'Chapter 10: Cluster Analysis'
+subtitle: 'Chapter 10, part 2: Cluster Analysis'
 author: "Brad McNeney"
 date: '2017-11-21'
 output: 
@@ -115,7 +115,8 @@ overall criterion value.
 \includegraphics[height=2.5in]{Fig10_7.pdf}
 \end{center}
 \scriptsize
-$K$-means clustering performed six times on the same data with $K=3.$  Each time a different random initialization was used.  Above each plot is the value of the objective function.  We can see that 3 different local optimums were found, with the one corresponding to an objective function value of 235.8 being the best one found.
+Text, Fig 10.7. $K$-means clustering performed six times on the same data with $K=3$ different random initializations.  Above each plot is the value of the objective function. Three different local optimums were found.
+The overall minimum is 235.8.
 
 ## $K$ Means Clustering of the Iris Data
 
