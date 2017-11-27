@@ -1,0 +1,154 @@
+---
+title: "Homework 4"
+author: "Brad McNeney"
+date: '2017-11-17'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 8, #11, 7 marks)
+
+
+(a) (1 mark)
+(Note: There was no need to random seed in part (a), but 
+it is for part(b)).
+
+_Solution:_
+
+```{r}
+library(ISLR)
+data(Caravan)
+library(gbm)
+train <- 1:1000
+Caravan.train <- Caravan[train,]
+Caravan.test <- Caravan[-train,]
+```
+
+
+(b) (3 marks)
+
+```{r,cache=TRUE}
+set.seed(1)
+cboost <- gbm(I(Purchase=="Yes") ~ ., data=Caravan.train, n.trees=1000,shrinkage=0.01,
+              distribution = "bernoulli")
+summary(cboost)
+```
+
+You can just list the top three or four:
+PPERSAUT, MKOOPKLA, MOPLHOOG and MBERMIDD.
+
+(c) (3 marks) Extract the predictions and form the
+confusion matrix with something like the following (1 mark).
+
+```{r}
+prediction <- predict(cboost,newdata=Caravan.test,n.trees=1000,
+                      type="response")
+predYes <- (prediction > .2)
+table(predYes,Caravan.test$Purchase)
+```
+
+Of the 156 people predicted to make a purchase, only 33/156, or
+about 21% do (1 mark).
+
+The percent who purchased among those predicted 
+to make a purchase were about 14% for logistic regression 
+with the 0.2 probability cut-off
+and 11%  for KNN with neighborhood size 3.
+It was OK to do one or the other (1 mark). I've included 
+both FYI.
+
+```{r}
+## Logistic regression
+lfit <- glm(I(Purchase=="Yes") ~ ., data=Caravan.train, 
+         family=binomial)
+pp <- predict(lfit,newdata=Caravan.test,type="response")
+predYes <- (pp>0.2)
+table(predYes,Caravan.test$Purchase)
+#KNN -- need to split Caravan.train/test into response and features
+library(dplyr); library(class)
+train.purchase <- Caravan.train$Purchase
+c.train <- select(Caravan.train,-Purchase)
+test.purchase <- Caravan.test$Purchase
+c.test <- select(Caravan.test,-Purchase)
+pp <- knn(c.train,c.test,train.purchase,k=3,prob=TRUE)
+table(pp,Caravan.test$Purchase)
+```
+
+
+## Question 2 (Ch9, #7, 5 marks -- REVISED)
+
+(a) (1 mark)
+
+```{r}
+library(ISLR)
+data(Auto)
+library(dplyr)
+# I'm replacing mpg with the binary indicator of > median,
+# and also removing the name variable, which will not help
+# us predict mpg. Also, recall that origin is categorical.
+Auto <- Auto %>%
+  mutate(mpg = factor(mpg>median(mpg))) %>%
+  select(-name) %>%
+  mutate(origin=factor(origin))
+```
+
+
+(b) (2 marks)
+This was fairly computational. OK to just try a few cost parameters. 
+I found that a cost of 0.01 was best (1 mark). The CV errors are reported
+below (1 marks). I'm not sure what the textbook authors 
+had in mind for comments, so I'm not requiring any. 
+
+```{r}
+library(e1071)
+set.seed(123)
+tune.auto <- tune(svm,mpg ~ .,data=Auto,kernel="linear",
+                   ranges=list(cost=c(10^{-4:1})))
+summary(tune.auto)$performances
+```
+
+(c) (2 marks)
+The code to repeat for the polynomial and radial kernels is given
+below (1 mark for each). I tried polynomial
+degrees of 1, 2 and 3. The best degree was 1, which 
+takes us back to linear, and the
+best cost 0.1. I found quite a bit of variation in the CV estimates, so it
+is possible that you could come up with different values for cost 
+and degree.
+For the radial kernel I tried $\gamma$ values of 1/4,1/2, 1 and 2.
+The best cost/gamma combination for me was 1/0.5.
+
+```{r}
+library(e1071)
+tune.auto <- tune(svm,mpg ~ .,data=Auto,kernel="polynomial",
+                   ranges=list(cost=c(10^{-3:0}),
+                               degree=1:3))
+summary(tune.auto)$performances
+tune.auto <- tune(svm,mpg ~ .,data=Auto,kernel="radial",
+                   ranges=list(cost=c(10^{-3:0}),
+                               gamma=c(0.25,0.5,1,2)))
+summary(tune.auto)$performances
+```
+
+(d) (NOT MARKED)
+
+We will discuss this in class. Here is my R code.
+
+```{r}
+l.auto<-glm(mpg~.,data=Auto,family=binomial)
+summary(l.auto)$coefficients
+svm.auto <- svm(mpg ~ .,data=Auto,kernel="linear",cost=0.1)
+summary(Auto)
+plot(svm.auto,Auto,weight~year,
+     slice=list(cylinders=4,displacement=150,horsepower=94,
+                acceleration=15,origin=2))
+svm.auto <- svm(mpg ~ .,data=Auto,kernel="radial",cost=1,gamma=0.5)
+plot(svm.auto,Auto,weight~year,
+     slice=list(cylinders=4,displacement=150,horsepower=94,
+                acceleration=15,origin=2))
+```
+
