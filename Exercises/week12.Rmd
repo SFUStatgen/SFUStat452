@@ -39,7 +39,7 @@ decathlon <- mutate(decathlon,
 rownames(decathlon) <- rnames
 ```
 
-(1) Perform PCA on the data without centering or scaling. Interpret the first PC.
+(1) Perform PCA on the data with centering but without scaling. Interpret the first PC.
 
 
 (2) Perform PCA on the centered and scaled data. Interpret the first PC.
