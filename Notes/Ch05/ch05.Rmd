@@ -35,7 +35,8 @@ repeated samples of training data.
     1. Sample training and test data
     2. Train the model, and use on the test data
     to obtain the average squared error
-* and averaging the average from step 2.
+    
+    and averaging the average from step 2.
 * With just one training and test set we can 
 get an *estimate* of the test error.
     
