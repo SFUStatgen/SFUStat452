@@ -2,7 +2,7 @@
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 2: Statistical Learning, R supplement'
 author: "Brad McNeney"
-date: '2017-09-01'
+date: '2018-09-01'
 output: 
   beamer_presentation:
     includes:
@@ -50,9 +50,9 @@ commands in the script, and then submit the commands to the R console.
 
 ## R Cheatsheets
 
-* Use Google to find one that works for you.
-* This one looks OK to me:
-<http://github.com/rstudio/cheatsheets/raw/master/source/pdfs/base-r.pdf>
+* See the RStudio cheatsheets page:
+<https://www.rstudio.com/resources/cheatsheets/>
+* Or use Google to find one that works for you.
 
 ## R objects
 - In R, data structures and functions are all referred to 
