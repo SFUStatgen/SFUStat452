@@ -1,0 +1,277 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 7, Part 4: Generalized Additive Models'
+author: "Brad McNeney"
+date: '2017-10-31'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.width=5)
+```
+
+## Generalized Additive Models (GAMs)
+
+* We now consider extending the linear model 
+when we have $p$ explanatory variables,
+$X = (X_1,\ldots,X_p)$. 
+* In linear regression, the function $f(X)$ is of the form
+$$f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \ldots + \beta_p X_p$$
+* In a GAM we use (up to) $p$ smooth functions
+$$f(X) = \beta_0 + f_1(X_1) + f_2(X_2) + \ldots + f_p(X_p)$$
+* The component functions $f_j(\cdot)$ can be any
+of the smoothers discussed in Sections 7.1-7.6
+(e.g., polynomial, spline or local regression; smoothing spline)
+
+## Example: Wage Data (Again)
+
+* Fit a model for `wage` of the form
+$$wage = \beta_0 + f_1(year) + f_2(age) + f_3(education) + \epsilon$$
+* Recall that `education` is categorical, so 
+$f_3$ is an expansion into dummy variables.
+
+\scriptsize
+
+```{r}
+library(ISLR)
+data(Wage)
+table(Wage$education)
+```
+
+\normalsize
+
+* We can use natural cubic splines with 4 df in `year` and `age`.
+
+\scriptsize
+
+```{r}
+library(splines)
+gfit <- lm(wage ~ ns(year,4) + ns(age,4) + education,data=Wage)
+```
+
+## 
+
+* To plot we can use a plotting function from the 
+`gam` package.
+
+\scriptsize
+
+```{r}
+library(gam)
+par(mfrow=c(1,3))
+plot.gam(gfit, se=TRUE)
+```
+
+## Model Selection
+
+* We could do CV-based model selection on the df for the two 
+splines, but this would now be a search over a 2-d 
+grid of df's.
+* However, we notice that a linear fit in `year` looks
+plausible, and we can use an ANOVA F-test to test the null
+hypothesis of linearity.
+    + Importantly, the model that is linear in `year` 
+    is a sub-model of the natural cubic spline model
+    (spline with 1 df is linear)
+
+\scriptsize
+
+```{r}
+gfit2 <- lm(wage ~ year+ns(age,4)+education,Wage)
+anova(gfit2,gfit)
+```
+
+\normalsize
+
+* We retain the hypothesis that $f$ is linear in `year`.
+
+## GAM with Smoothing Splines
+
+* Smoothing splines shrinkage estimators
+and so are not fit simply by least squares.
+* Use the `gam` package.
+    + Written by Hastie and Tibshirani (also authors
+    of a book on the subject)
+    
+\scriptsize
+
+```{r}
+library(gam)
+gfit3 <- gam(wage ~  s(year,4) + s(age,4) + education,data=Wage)
+```
+
+##
+
+\scriptsize
+
+```{r}
+par(mfrow=c(1,3))
+plot(gfit3, se=TRUE,ylim=c(-40,40))
+```
+
+## GAM Intepretation
+
+* Each smooth is the estimated effect of changing
+one variable holding the others fixed.
+* For example, holding age and education fixed,
+wage increases slightly, and approximately linearly
+by year.
+* Holding year and education fixed,
+wage increases until about 40, then is levels out,
+and the drops after 60.
+* Holding year and age fixed, 
+wage increases with education level.
+
+
+## Model Reduction
+
+* A smoothing spline with 2df in `year` is linear, so we can 
+use the F-test to compare models.
+
+\scriptsize
+
+```{r}
+gfit4 <- gam(wage ~  year + s(age,4) + education,data=Wage)
+anova(tem,gfit3)
+anova(gfit4,gfit3)
+```
+
+\normalsize
+
+* We retain the hypothesis of linear in `year`.
+
+##
+
+\scriptsize
+
+```{r}
+par(mfrow=c(1,3))
+plot(gfit4,se=TRUE,ylim=c(-40,40))
+```
+
+## Model Summary
+
+\tiny
+
+```{r}
+summary(gfit4)
+```
+
+## GAM Predictions
+
+\scriptsize
+
+```{r}
+newdat <- expand.grid(
+  year=2003:2009,
+  age=c(20,30,40,50,60,70,80),
+  education=levels(Wage$education))
+preds <- predict(gfit4,newdata=newdat)
+preds[,,5] # Advanced degree
+```
+
+## GAM with Local Regression
+
+\scriptsize
+
+```{r}
+gfit5 <- gam(wage ~ year + lo(age,span=0.5)+education,data=Wage)
+par(mfrow=c(1,3))
+plot(gfit5,se=TRUE)
+```
+
+## GAM with Multiple Local Regression ("Interaction")
+
+\scriptsize
+
+```{r}
+gfit6 <- gam(wage ~ lo(year,age,span=0.5)+education,data=Wage)
+par(mfrow=c(1,2))
+library(akima)
+plot(gfit6,se=TRUE)
+```
+
+
+## Advantages and Limitations of GAMs
+
+* Advantages
+    + Allows non-linear relationships that simple
+    linear regression might miss, or might take a lot 
+    of work to discover (think age effect). 
+    + Can interpret components of the GAM
+    (holding other variables fixed)
+    + Smoothness of the component functions can 
+    be controlled by their df.
+* Disadvantages
+    + Restricted to additive models, though 
+    can fit interactions with local regression.
+
+## GAMs for Classification
+
+* The "G" in GAM also stands for a generalization
+beyond gaussian linear models.
+* Recall the logistic regression 
+model formulation for modelling 
+$p(X) = P(Y=1|X)$:
+$$ \log \left( \frac{p(X)}{1-p(X)} \right) = 
+\beta_0 + X_1 \beta_1 + \ldots + 
+X_p \beta_p. $$
+* Generalize to 
+$$ \log \left( \frac{p(X)}{1-p(X)} \right) = 
+\beta_0 + f_1(X_1) + \ldots + f_p(X_p). $$
+
+## Example Logistic GAM
+
+\scriptsize
+
+```{r}
+gfit7 <- gam(I(wage>250) ~ year + s(age,4) + education,
+             data=Wage,family=binomial)
+par(mfrow=c(1,3))
+plot(gfit7,se=TRUE,ylim=c(-6,6))
+```
+
+## Removing `< HS Grad`
+
+* There are no high-income earners with `< HS Grad` education,
+so our esimate of the education effect in this category 
+is essentially $-\infty$.
+    + Remove this category and re-fit
+    
+\scriptsize
+
+```{r}
+gfit7.s <- gam(I(wage>250) ~ year + s(age,4) + education,
+             data=Wage,family=binomial,subset=(education!="1. < HS Grad"))
+```
+
+##
+
+\scriptsize
+
+```{r}
+par(mfrow=c(1,3))
+plot(gfit7.s,se=TRUE,ylim=c(-6,6))
+```
+
+## Remove Year
+
+\scriptsize
+
+```{r}
+gfit8.s <- gam(I(wage>250) ~  s(age,4) + education,
+             data=Wage,family=binomial,subset=(education!="1. < HS Grad"))
+anova(gfit8.s,gfit7.s)
+```
+
+## Alternative Implementation of GAMs
+
+* `mgcv` is another well-developed R package that
+fits GAMS.
+* The focus in `mgcv` is on penalized regression splines.
+    + Penalty term may be selected by CV or other estimate of 
+    test set error.
+* Allows interactions through "thin plate" regression splines
