@@ -2,7 +2,7 @@
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 2: Statistical Learning'
 author: "Brad McNeney"
-date: '2017-09-01'
+date: '2018-09-01'
 output: 
   beamer_presentation:
     includes:
@@ -37,7 +37,7 @@ head(advert)
 
 ```{r,fig.height=2,fig.width=4}
 library(ggplot2)
-ggplot(advert,aes(x=TV,y=Sales)) + 
+ggplot(advert,aes(x=TV,y=sales)) + 
   geom_point() + geom_smooth(se=FALSE)
 ```
 
@@ -140,7 +140,10 @@ the reducible error.
 
 ## Inference
 
-* Looking inside the black box.
+* Or, should our goal be to "open the box" and see
+what's inside?
+    + See first 4:30 of TED talk by Barbara Englehardt:
+    https://www.youtube.com/watch?v=uC3SfnbCXmw
 * We may want to understand the relationship between $X$ and $Y$.
     + If there are many explanatory variables, can we find a few
     important variables that explain the most variation in the 
@@ -266,6 +269,14 @@ to train the model to obtain accurate estimates.
 
 * Figure 2.7 of the text schematically represents
 the trade-off between prediction accuracy and model interpretability.
+\vspace*{-.5in}
+    
+\begin{center}
+\includegraphics[height=2.5in]{Fig2_7.pdf}
+\end{center}
+
+\vspace*{-.5in}
+
 * The more flexible the model, the more accurate the predictions, but
 the less interpretable the model.
     + We will see this by comparing methods as we go.
@@ -315,11 +326,12 @@ MSE = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{f}(x_i))^2
 * However, we are not especially interested in the MSE
 from the training data (the training MSE in equation 1).
     + Recall the fact that a high enough polynomial regression can interpolate
-    (see also the wiggly smoothing splines in Figure 2.9 of the text).
     + If all we cared about was training MSE, we'd fit high-degree
     polynomials.
     + But these would overfit and would give poor predictions of new
     responses.
+    
+
 
 ## The Test MSE
 
@@ -329,13 +341,35 @@ If the training observations $\{ (x_1,y_1),\ldots, (x_n,y_n) \}$
 are used to produce $\hat{f}$, and we had a large number of 
 test observations $(x_0,y_0)$, the test MSE
 $$
-Ave(y_0 - \hat{f}(x_0))
+Ave((y_0 - \hat{f}(x_0))^2)
 $$
 reflects how well $\hat{f}$ predicts new observations.
 * We would like to develop methods that minimize the test MSE.
 * **Cross validation** (CV) is a tool to estimate the test MSE.
 
-## Bias-Variance Tradeoff
+## Training _versus_ Test MSE
+
+* Text, simulated data example, Figure 2.9.
+
+\vspace*{-.5in}
+
+\begin{center}
+\includegraphics[height=2in]{Fig2_9.pdf}
+\end{center}
+
+\vspace*{-.3in}
+
+* The black line is the curve used to simulate data (circles)
+and the other lines are fitted curves of different flexibility
+(smoothing splines, Chapter 7).
+
+* In the right panel, the grey line is the training MSE
+and the red is the test MSE.
+    + The "U" shape of the test MSE is typical and 
+    reflects the bias-variance trade-off
+
+
+## Bias-Variance Trade-Off
 
 * For fixed $x_0$ and $y_0$, 
 the expected test MSE $E(y_0 - \hat{f}(x_0))^2$, obtained
@@ -369,14 +403,13 @@ where
     + $I(y_i \not= \hat{y}_i)$ is an indicator variable that is one if 
     $y_i \not= \hat{y}_i$ and zero if $y_i = \hat{y}_i$.
 * Equation (\ref{eqn:trainError}) is the training error rate. We are
-more interested in the test error rate,
-which is an average of averages: First average
+more interested in the test error rate:
 \begin{equation}
 Ave(I(y_0 \not= \hat{y}_0))
 \label{eqn:testError}
 \end{equation}
-for new $(x_0,y_0)$, and then 
-average this over repeated samples of training data.
+where the average is over new $(x_0,y_0)$.
+
 
 ## The Bayes Classifier
 
@@ -392,3 +425,18 @@ so the Bayes classifier is not practically useful.
     + Suggests we try to estimate the required conditional probabilities.
     This is the idea behind the K-nearest neighbors classifier
     (Chapter 4).
+
+## Loss Functions
+
+* Reference: Elements of Statistical Learning, Chapter 7.
+* We measure the errors between $Y$ and fit $\hat{f}(X)$
+by a loss function $L(Y,\hat{f}(X))$.
+    + For quantitative $Y$ we mentioned squared error loss
+    $$L(Y,\hat{f}(X)) = (Y-\hat{f}(X))^2$$
+    which gave us the test MSE.
+    + For categorical response, $G$, 
+    we mentioned zero-one loss (misclassification error) 
+    $$L(Y,\hat{f}(X)) = I(Y \not= \hat{f}(X))$$
+    which gave us the test error.
+* In general, the test error is the average loss over
+a test set.
