@@ -94,7 +94,7 @@ is denoted $x_{ij}$
 
 ## More Notation and Simple Matrix Algebra
 
-* Dongment will discuss in tutorial for those who need a refresher
+* Dongmeng will discuss in tutorial for those who need a refresher
 or quick intro.
 
 ## R and RStudio
