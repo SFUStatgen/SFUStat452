@@ -1,0 +1,490 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 3, Part 3: Other Considerations in Multiple Linear Regression'
+author: "Brad McNeney"
+date: '2018-09-01'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+library(ggplot2)
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Advertising.csv")
+advert <- read.csv(uu,row.names=1)
+afit2<-lm(sales ~ TV + radio,data=advert)
+```
+
+## Topics
+
+* Interaction and non-linear model terms
+* Categorical variables as predictors
+* Model diagnostics
+
+
+
+
+## Example Data: Credit Card Balances
+
+* Understand which variables are associated with 
+credit card balance.
+
+\scriptsize
+
+```{r}
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Credit.csv")
+credit <- read.csv(uu,row.names=1)
+head(credit)
+```
+
+## Software Note
+
+* In R, categorical variables should be stored as **factors**.
+
+# Interaction and Non-Linear Model Terms
+
+## Interaction and Non-Linear Model Terms
+
+* We have already seen non-linear model terms when we 
+modelled the relationship between income and education
+as a polynomial. 
+* We now discuss interaction.
+
+
+## Statistical Interaction
+
+- Start with two explanatory variables income ($X_1$) and 
+student status ($X_2$)
+    - `StudentYes=1` if the person is a student and 0 otherwise.
+- $X_2$ is said to modify the effect of $X_1$ on $Y$ if the regression 
+slope of the regression 
+of $Y$ on $X_1$ differs in the $X_2=0$ and $X_2=1$ sub-groups. 
+    - If we stratify the analysis by student status and find different 
+effects of income in the two groups, there is statistical interaction 
+between income and student status.
+
+## Model for Stratification by Student Status
+
+\small
+
+- $f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1X_2$
+where 
+    - $X_1$ is income
+    - $X_2$ is student status (1 is student, 0 is not)
+    - $X_1 \times X_2$ is the statistical interaction between 
+    income and student status.
+    - $\beta_1$, $\beta_2$, and $\beta_3$ are the corresponding regression coefficients.
+- This model allows separate lines for the two values of student
+status.
+    - student status = 0 model: intercept $\beta_0$ and slope $\beta_1$
+    - student status = 1 model: intercept $\beta_0+\beta_2$ and slope $\beta_1+\beta_3$
+    - Interpret $\beta_3$ as the difference between slopes. 
+    - If $\beta_3=0$, then student status does not modify effect of income on balance.
+    - In practice, we test the hypothesis $H_0:\beta_3=0$. 
+
+## Fitted Model
+
+\scriptsize
+
+```{r}
+cfit <- lm(Balance ~ Income*Student,data=credit)
+summary(cfit)$coefficients
+```
+
+\small
+
+- The $t$-test of the hypothesis $H_0:\beta_3=0$ does not reject at any of the standard levels.
+- That is, we retain the hypothesis that student status does
+not modify the effect of income on balance.
+
+
+## Statistical Interaction More Generally
+
+- Interaction terms are generally defined as products of two other model terms:
+    - $f(X) = \beta_0 + \beta_1 X_1 + \beta_2X_2 + \beta_3 X_1X_2$
+- In general we allow different lines for different values of $X_2$.
+    - $X_2 = 0$ model: intercept $\beta_0$ and slope $\beta_1$
+    - $X_2 = x_2$ model: intercept $\beta_0+\beta_2 x_2$ and slope $\beta_1+\beta_3x_2$
+    - Interpret $\beta_3$ as the difference between slopes for a one-unit change in $X_2$.
+    - If $\beta_3=0$ then $X_2$ does not modify effect of $X_1$ on $Y$ and _vice versa_.
+    - In practice, test the hypothesis $H_0:\beta_3=0$.
+
+
+## Interaction Between TV and Radio Advertising
+
+\scriptsize
+
+```{r}
+afit <- lm(sales ~ TV*radio,data=advert)
+summary(afit)$coefficients
+```
+
+\normalsize
+
+* There is statistical interaction between TV and radio ads.
+    + TV modifies the effect of radio, or radio modifies the
+    effect of TV
+
+# Categorical Variables as Predictors
+
+## Dummy Variables for Categorical Predictors
+
+- We have seen dummy variables before.
+    - A binary variable for student status,
+    coded 0 or 1 to represent 
+    the two levels of a dichotomous variable.
+- When the categorical variable has more than two values,
+or levels, we need more than one binary "dummy" variable.
+    - Example: The `Ethnicity` variable from the 
+    credit data.
+
+## 
+
+\scriptsize
+
+```{r, fig.width=6,fig.height=2.5}
+ggplot(credit,aes(x=Income,y=Balance,color=Ethnicity)) +
+  geom_point() + geom_smooth(method="lm",se=FALSE)
+```
+
+## Regression Model for Balance
+
+\scriptsize
+
+```{r}
+cfit <- lm(Balance ~ Income*Ethnicity,data=credit)
+summary(cfit)$coefficients
+```
+
+
+
+
+
+## Model Details
+
+- Model requires too much notation to write out in detail;
+will explain in the context of this example.
+
+\scriptsize
+
+```{r}
+coefficients(cfit)
+```
+
+\normalsize
+
+- The model uses African American as a "baseline".
+    - The intercept=175 and slope `Income`=7.46 
+    terms are the fitted model for mean `Balance` in African
+    Americans.
+- The model for mean `Balance` in another ethnic group is 
+the baseline plus ethnic-group-specific intercept and slope
+    - E.G., for the Asians, add 57.3 to the African American
+    intercept and $-1.13$ to the African American slope
+    
+## Dummy Variables for Ethnic Group
+
+\small
+
+- Create a binary variable for each non-baseline ethnic group
+that takes value 1 if the person is from that ethnic group and 0
+otherwise.
+
+\scriptsize
+
+```{r, echo=FALSE}
+dvars <- model.matrix(cfit)[,2:4]
+head(data.frame(Ethnicity=credit$Ethnicity,dvars))
+```
+
+
+## Model with separate lines for each continent
+
+\scriptsize
+
+```{r, echo=FALSE}
+dvars <- model.matrix(cfit)[,2:6]
+head(data.frame(Ethnicity=credit$Ethnicity,dvars))
+```
+
+
+## Multiple-Partial F-test for Interaction
+
+\scriptsize
+
+```{r}
+cfitReduced <- lm(Balance ~ Income + Ethnicity,data=credit)
+anova(cfitReduced,cfit)
+```
+
+\normalsize
+
+* There is little evidence that ethnicity modifies
+the effect of income on balance.
+
+
+# Model Diagnostics based on Residuals
+
+## Model Diagnostics based on Residuals
+
+* Residuals are the primary tool for 
+    + checking model assumptions (correct linear
+    model, constant error SD,  and normal errors) and
+    + identifying unusual observations.
+* Residuals may also be useful for detecting correlation 
+in the errors, but this is a more specialized topic not discussed.
+
+## Residuals versus fitted values
+
+
+-  Plot residuals _vs_ fitted values
+to assess adequacy of the linear model and constant error
+SD.
+    - A plot of $\epsilon_i$ _vs_ $f(x_i)$ would show 
+    no pattern, because the $\epsilon_i$'s are random noise.
+    - If the linear model is adequate, we should not see any 
+    trends or patterns in the residuals _vs_ fitted values
+    $\hat{y}_i = \hat{f}(x_i)$.
+    - Also, if the error SD is constant, the variation in 
+    residuals _vs_ $\hat{y}_i$  should
+    look roughly equal.
+- We may also see outliers in the regression sense.
+
+## Residuals versus Fitted Values - Advertising
+
+* Use the `residual()` and `fitted()` extractor functions.
+
+\scriptsize
+
+```{r, fig.width=4, fig.height=2.5}
+adAug <- data.frame(advert,fitted=fitted(afit),residuals=residuals(afit))
+ggplot(adAug,aes(x=fitted,y=residuals)) +
+  geom_point() + geom_smooth()
+```
+
+
+
+## Residual vs fitted -- comments
+
+\small
+
+- Horizontal line at zero is outside the error bands around smoother line. 
+    + Suggests we have missed a non-linear trend.
+- Spread of residuals fairly constant over range of fitted values,
+so constand SD assumptions appears reasonable.
+
+
+## Q-Q Plots
+
+\small
+
+- A quantile-quantile (Q-Q) plot is a plot of  the quantiles of one distribution 
+to another.
+    - If the two distributions have the similar shape, the points should fall
+roughly on a straight line.
+- Our interest is in comparing the quantiles of the distribution of 
+residuals to the quantiles of the distribution they should have under normal errors.
+    - One can argue that the residuals don't have 
+    the same distribution (those closer to the centre of the
+    plot are slightly more variable).
+- However, Studentized residuals do -- they have a $t$ distribution with 
+$n-k-2$ degrees of freedom.
+    - The Studentized residual for the $i$th case
+is  
+$$ \frac{y_i - \hat{y}_i}{\hat{\sigma}_{-i}\sqrt{1-h_{ii}}}.$$
+    where $h_{ii}$ is the leverage or hat value and 
+    $\hat{\sigma}_{-i}$ is the estimate of the error SD **without** case $i$
+    
+## Q-Q plot of Studentized residuals
+
+\small
+
+- The `qqPlot()` function from the `car` package plots
+Studentized residuals against quantiles of the appropriate
+$t$ distribution.
+    - Also adds error bands: If all points fit within bands, 
+    it is plausible that the sample is from the $t$.
+
+\tiny
+
+```{r, fig.width=4, fig.height=2.5, warning=FALSE,message=FALSE}
+library(car) # Use install.packages("car") to install
+qqPlot(afit)
+```
+
+
+
+## Identifying unusual observations
+
+- Studentized residuals can identify outliers
+    - Rule-of-thumb: Residuals beyond $\pm 2$ are moderate outliers and beyond $\pm 3$ are serious outliers.
+- Leverage ($h_i$) is a measure of how atypical an observation's
+$X$ values are.
+    - Rule-of-thumb: $h_i > 2(p+1)/n$ is somewhat high leverage
+    and $h_i > 3(p+1)/n$ is very high leverage.
+- Cook's distance measures the influence of an observation; i.e., how much the estimated regression coefficients change when the observation is removed.
+    - Rule-of-thumb: Cook's distance $> 0.5$ is moderately
+    influential, and $> 1$ is highly influential
+
+
+## Identify Unusual Observations in Advertising Data
+
+\small
+
+- Augment the dataset and `View()` to identify
+cases that are
+unusual according to our rules-of-thumb.
+    - Several "moderate" residuals, and two severe
+    residuals of $-4.5$ and $-7.9$.
+    - For leverage, $p=2$, $n=200$, $2(p+1)/n = 0.03$,
+    $3(p+1)/n=0.045$: 27 cases with moderate leverage, 12 with 
+    very high leverage!
+    - One moderately influential case.
+
+```{r}
+adAug <- data.frame(advert,studRes = rstudent(afit),
+                    hats = hatvalues(afit), 
+                    cooks = cooks.distance(afit))
+# Now View(adAug)
+```
+
+## Correlated Predicters, or Collinearity
+
+- The distribution of $X$'s can affect stability of the 
+least squares estimates.
+    - For simple linear regression one can show that: 
+    $$
+    SE(\hat{\beta}_1) = \frac{\hat{\sigma}}{S_X \sqrt{n-1}}
+    $$
+    where $S_X$ is the SD of the $X$'s in the dataset.
+    - Implies that the larger the $S_X$ the smaller the SE
+    (i.e., the more stable the fit).
+- In general can think of the positioning of $X$'s as a "foundation" that
+supports the least squares surface -- the broader the base, 
+the more stable the estimates.
+- Collinearity, or correlation between predictors, yields an unstable 
+foundation and hence unstable estimates.
+
+## More on SEs
+
+\small
+
+- With two explanatory variables, $X_1$ and $X_2$, 
+can show that
+$$ 
+SE(\hat{\beta}_1) = \frac{\hat{\sigma}}{S_{X_1} \sqrt{n-1}\sqrt{1-r^2_{12}}}
+$$
+and
+$$ 
+SE(\hat{\beta}_2) = \frac{\hat{\sigma}}{S_{X_2} \sqrt{n-1}\sqrt{1-r^2_{12}}}
+$$
+where $r_{12}$ is the correlation between $X_1$ and $X_2$. 
+- In addition to $S_{X_1}$ and $S_{X_2}$ we must consider 
+the correlation between $X_1$ and $X_2$.
+- The larger the squared correlation, the larger the SEs
+
+## Variance Inflation Factors (VIFs)
+
+\small
+
+- In a multiple regression with $X_1,\ldots,X_p$,  
+$$ 
+SE(\hat{\beta}_j) = \frac{\hat{\sigma}}{S_{X_j} \sqrt{n-1}\sqrt{1-R^2_j}}
+$$
+where $R^2_j$ is the $R^2$ from the regression of $X_j$ on $X_{(-j)}$.
+- The term $1/\sqrt{1-R^2_j}$,
+is the factor by which the SE of $\hat\beta_j$
+is inflated over the SE from a simple linear regression
+by correlation between $X_j$ and the other $X$'s.
+- The variance inflation factor for $X_j$, $VIF_j$, is
+defined to be $1/(1-R^2_j)$; i.e., the SE of $\hat\beta_j$
+is inflated by $\sqrt{VIF_j}$.
+- High VIFs indicate instability.
+    - One rule of thumb is that a $VIF_j> 10$ is cause for concern.
+    
+## VIFs and Other Diagnostics in the `car` Package
+
+\small
+
+- If you haven't already done so, install the 
+R package `car`.
+
+\scriptsize
+
+```{r}
+library(car)
+vif(afit)
+```
+
+\normalsize
+
+* The VIFs suggest the interaction is quite well predicted
+by TV and radio, but the VIF is less than our threshold 
+so we are not concerned.
+
+## Collinearity with Polynomial Terms
+
+\scriptsize
+
+```{r}
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Income1.csv")
+income <- read.csv(uu,row.names=1)
+ifit<- lm(Income ~ Education + I(Education^2) + I(Education^3), data=income)
+vif(ifit)
+```
+
+## Remedies for collinearity
+
+- When the collinearity arrises from explanatory variables that 
+are products of other variables, centering can help.
+
+\scriptsize
+
+```{r}
+centre <- function(x) { x - mean(x)}
+income <- data.frame(income, cEducation = centre(income$Education))
+ifit<- lm(Income ~ cEducation + I(cEducation^2) + I(cEducation^3), data=income)
+vif(ifit)
+```
+
+
+## Collinearity: If centering doesn't help
+
+- May need to exclude a variable.
+    - Sounds drastic, but high $R^2_j$ indicates $X_j$ is very well predicted by $X_{(-j)}$, so nothing really lost.
+- Which variable to exclude? 
+- First use common sense: 
+    - If one variable is 
+    a surrogate for another, drop the surrogate.
+    - For example, if we are modeling house prices
+    with (i) size of the house in square feet 
+    and (ii) the number of bedrooms, we may think
+    bedrooms is just a surrogate for size.
+- If no obvious candidate to drop, use model selection.
+
+## Fit of the Advertising Data Revisited
+
+\scriptsize
+
+```{r}
+library(dplyr)
+advert <- mutate(advert,cTV = TV - mean(TV),
+         cRadio = radio - mean(radio))
+afitC <- lm(sales ~ cTV*cRadio+I(cTV^2) +I(cTV^3)+I(cTV^4),
+            data=advert)
+summary(afitC)$coefficients
+vif(afitC)
+```
+
+
+##
+
+\scriptsize
+
+```{r, fig.width=4, fig.height=2.5}
+mutate(advert,fitted=fitted(afitC),residuals=residuals(afitC)) %>%
+  ggplot(aes(x=fitted,y=residuals)) + geom_point() + geom_smooth()
+```
+

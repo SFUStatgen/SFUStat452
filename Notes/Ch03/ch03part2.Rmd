@@ -44,14 +44,14 @@ where $\hat{y}_i$ is the fitted value of $Y$ for $X=x_i$.
 
 * The residuals are still defined as vertical distances
 $e_i = y_i - \hat{y}_i$
-(see Figure 3.4, page 73 of text).
+(see Figure 3.4 of text, copied on next slide).
 * Least squares finds the $\hat{\beta}_0,\ldots,\hat{\beta}_p$
 that minimize $RSS = \sum_{i=1}^n e_i^2$.
 
 ##
 
 \begin{center}
-\includegraphics[height=4.0in]{Fig3_4.pdf}
+\includegraphics[height=3.0in]{Fig3_4.pdf}
 \end{center}
 
 
@@ -74,7 +74,7 @@ an increase in sales of between 43 and 49 units.
     + Compare to interval estimate (42,53)
     from simple linear regression. 
     
-## Advertising Example: Affect of Newspaper Ads
+## Advertising Example: Effect of Newspaper Ads
 
 \scriptsize
 
@@ -298,7 +298,7 @@ predict(afit2,newdata=newdat)
     1. Model bias: The model $f(X)$ may be wrong. We will 
     ignore this for now.
     2. Estimation: Our $\hat{f}$ is 
-    based on $\hat{\beta}_1,ldots,\hat{\beta}_p$, which
+    based on $\hat{\beta}_1,\ldots,\hat{\beta}_p$, which
     will not be equal to $\beta_1,\ldots,\beta_p$.
     This is
     part of the reducible error.
@@ -332,7 +332,7 @@ is between 13,304 and 13,785.
 ## Prediction Intervals
 
 * Prediction intervals are constructed to contain 
-a given proportion of future observations. 
+a given proportion of _future_ observations. 
 * The intervals must account for both the reducible error
 from estimating $f$ and the irreducible error $\epsilon$.
     * Details are not important. We will use R.
