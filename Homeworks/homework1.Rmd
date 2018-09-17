@@ -19,7 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 (d)
 
-
 ## Question 2 (Chapter 2, #2, 6 marks)
 
 (a)

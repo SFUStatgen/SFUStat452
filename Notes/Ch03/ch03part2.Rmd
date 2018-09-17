@@ -295,25 +295,25 @@ predict(afit2,newdata=newdat)
 ## Sources of Uncertainty
 
 * Three sources:
-    1. Model bias: The model $f(X)$ may be wrong. We will 
-    ignore this for now.
+    1. Model bias: The model $f(x_0)$ may be wrong. We will 
+    ignore this for now; i.e., assume Bias($\hat{f}(x_0)$)=0.
     2. Estimation: Our $\hat{f}$ is 
     based on $\hat{\beta}_1,\ldots,\hat{\beta}_p$, which
     will not be equal to $\beta_1,\ldots,\beta_p$.
-    This is
+    Var($\hat{f}(x_0)$) is
     part of the reducible error.
-    3. Irreducible error: $Y = f(X) + \epsilon$, and 
+    3. Irreducible error: $Y = f(x_0) + \epsilon$, and 
     so even if $\hat{f} = f$, predictions will not be perfect.
-* We construct confidence intervals for $f(X)$  to 
+* We construct confidence intervals for $f(x_0)$  to 
 quantify estimation uncertainty, and prediction intervals
 to quantify estimation uncertainty plus irreducible error.
 
-## Confidence Intervals for $f(X)$.
+## Confidence Intervals for $f(x_0)$.
 
-* For fixed $X$, $f(X)$ is a function of parameters, and 
+* For fixed $x_0$, $f(x_0)$ is a function of parameters, and 
 so is a parameter. 
-* We can construct a confidence interval for $f(X)$ based
-on the sampling distribution of $\hat{f}(X)$. 
+* We can construct a confidence interval for $f(x_0)$ based
+on the sampling distribution of $\hat{f}(x_0)$. 
     * Details are not important. We will use R.
 
 \scriptsize
