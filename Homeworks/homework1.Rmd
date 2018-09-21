@@ -1,6 +1,6 @@
 ---
 title: "Homework 1"
-author: "Name1, Name2 and Name3"
+author: "Jie Chen"
 date: '2018-09-21'
 output: html_document
 ---
@@ -11,21 +11,31 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Question 1 (Chapter 2, #1, 8 marks)
 
-(a) <your answer here>
+(a) <Flexible is better because it 
+can use the abundance of data points (large n) to give a good fit.>
 
-(b) <etc.>
+(b) <Flexible is worse because it
+takes more data (n) to fit.>
 
-(c)
+(c) <Flexible is better because it 
+will have the flexibility to fit the non-linear relationship.>
 
-(d)
+(d) <Flexible is worse because it
+will try to fit the error.>
 
 ## Question 2 (Chapter 2, #2, 6 marks)
 
-(a)
+(a) <This is a regression problem and we 
+are most interested in inference. 
+n=500, p=3.>
 
-(b)
+(b) <This is a classification problem and we
+are  most interested in prediction.
+n=20, p=4.>
 
-(c)
+(c) <This is a regression problem and we are
+most interested in prediction.
+n=52, p=3.>
 
 ## Question 3 (Chapter 2, #9, 8 marks)
 
@@ -35,9 +45,10 @@ data(Auto)
 head(Auto)
 ```
 
-(a)
+(a) <Origin and name are qualitative and the other seven
+are quantitative.> 
 
-(b)
+(b) <
 
 ```{r}
 # Hints:
@@ -73,6 +84,8 @@ meansd <- function(x) {
 AutoSubset <- Auto[c(1:9,86:nrow(Auto)),1:7]
 ```
 
-(e)
+(e)The variables 'cylinders', 'displacement', 'housepower'
+and 'weight' are positively correlated with each other
+and negatively correlated with "mpg'.
 
-(f)
+(f) Mpg associated with all of the quantitative variables.
