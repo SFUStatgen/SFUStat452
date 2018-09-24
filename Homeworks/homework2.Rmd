@@ -1,0 +1,80 @@
+---
+title: "Homework 2"
+author: "Name1, Name2 and Name3"
+date: '2018-10-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Question 1 (Chapter 3, #3, 6 marks)
+
+(a)
+
+(b)
+
+(c)
+
+## Question 2 (Chapter 3, #9, 10 marks)
+
+```{r}
+library(ISLR) 
+data(Auto)
+library(dplyr)
+Auto <- 
+  Auto %>% select(-name) %>% mutate(origin = factor(origin))
+head(Auto)
+```
+
+(a)
+
+(b)
+
+
+(c)
+
+
+(d)
+
+(e)
+
+(f) To keep the investigation of transformations
+manageable, try transformations of the `weight` variable
+only.
+
+## Question 3 (Chapter 4, #4, 7 marks)
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+(e)
+
+
+## Question 4 (Chapter 4, #10 parts (a)-(h), 9 marks)
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+(e)
+
+(f)
+
+(g)
+
+(h)
+
+(i) DO NOT HAND IN THIS PART (though you are, of course,
+free to do it on your own).
