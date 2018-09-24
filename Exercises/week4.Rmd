@@ -1,0 +1,55 @@
+---
+title: "Week 4 Exercises"
+author: "Brad McNeney"
+date: '2018-09-24'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will perform multiple regression on the `gapminder`
+data to see which variables predict life expectancy
+in 1952 for countries from Asia, Europe and Africa.
+
+1. Replace the GDP per capita (`gdpPercap`) and 
+population (`pop`) variables
+with their **base-10** logarithms. Then create
+a data set with just the 1952 data.
+Remove the `year` variable
+from your data set.
+
+2.
+Fit a model for life expectancy
+that includes your log-GDP and log-population
+variables and interactions between these variables
+and continent. 
+
+
+3. Simultaneously
+test the null hypothesis that log-population 
+and its interactions with continent
+do not modify the effect of log-population
+on life expectancy. Report the conclusion of
+your test using a 5% significance level.
+
+
+4. In light of part (3) we drop population from the model
+and use the reduced model.
+Write the fitted model, $\hat{f}(X)$, for 
+life expectency for countries in Europe.
+Interpret the slope of this equation.
+
+
+5. Use `ggplot()` to plot the residuals
+_versus_ fitted values. Comment on the plot.
+
+6. Use the `qqPlot()` function from `car` to do a Q-Q plot 
+of the Studentized residuals. Comment on the plot. What
+does you plot suggest?
+
+7. Calculate the Studentized residuals,
+leverages (hats) and Cook's distances. Use
+`filter()` once to pick out any points that are serious outliers,
+have very high leverage or are highly influential.
