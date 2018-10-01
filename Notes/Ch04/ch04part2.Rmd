@@ -159,7 +159,7 @@ so  `count` is proportional to what we want to plot.
 \scriptsize
 
 ```{r}
-n <- 10000; K <- 2
+n <- nrow(Default); K <- 2
 pi1 <- with(Default,mean(default=="Yes")); pi2 <- 1-pi1
 defBalance <- with(Default,balance[default=="Yes"])
 nodefBalance <- with(Default,balance[default=="No"])
@@ -444,7 +444,7 @@ QDA. If not, use LDA.
 \includegraphics[height=2in]{Fig4_9.pdf}
 \end{center}
 
-* Text, Figure 4.9: $p=2), Bayes (purple dashed), 
+* Text, Figure 4.9: $p=2$, Bayes (purple dashed), 
 LDA (black dotted), QDA (green solid).
 
 
