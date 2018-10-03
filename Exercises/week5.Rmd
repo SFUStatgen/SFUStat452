@@ -201,7 +201,7 @@ The error rate is about 40%, the best so far.
 
 ```{r}
 library(class) # help(knn)
-# A function called select() function is in the MASS package,
+# A function called select() is in the MASS package,
 # and will be used before select() from dplyr.
 # Use :: to specifically use select from dplyr
 train.X <- dplyr::select(Smarket.train,Lag1,Lag2)

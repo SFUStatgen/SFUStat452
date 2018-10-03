@@ -22,29 +22,20 @@ random sampling of subsets of the data.
 the test error, bootstrap is used to estimate
 the variance of estimators.
 
-## Test Error
+## Test Error 
 
-* The test error is based on the average 
-squared prediction error over test observations
-(not used to train the model):
-$${\rm Ave}(y_0 - \hat{f}(x_0))^2,$$
-where the average is over future $x_0$'s.
-* We then average this average over 
-repeated samples of training data.
-* Picture this as repeating the following:
-    1. Sample training and test data
-    2. Train the model, and use on the test data
-    to obtain the average squared error
-    
-    and averaging the average from step 2.
-* With just one training and test set we can 
+* Illustrate with squared error for quantitative $Y$.
+* Training observations $\{ (x_1,y_1),\ldots, (x_n,y_n) \}$
+are used to produce $\hat{f}$.
+* If we had a large number of 
+test observations $(x_0,y_0)$, the test MSE
+$$
+Ave((y_0 - \hat{f}(x_0))^2)
+$$
+reflects how well $\hat{f}$ predicts new observations.
+* With just a finite test set we
 get an *estimate* of the test error.
     
-<!--    
-    + Note: There are alternatives to "squared error
-    loss" for measuring error. Squared error is 
-    the most common for quantitative data.
--->
 
 ## Validation
 
@@ -147,6 +138,7 @@ ggplot(tMSE,aes(x=degree,y=testMSE,color=validn))+ geom_line()
 
 * Note the variability in the estimated test MSE.
 
+
 ## Cross-Validation (CV)
 
 * Rather than a single data split,
@@ -159,6 +151,28 @@ test on the hold-out to get MSE$_i$; $i=1,\ldots,k$.
 estimated test MSEs:
 $$ CV_{(k)} = \frac{1}{k} \sum_{i=1}^k {\rm MSE}_i.$$
 
+## Test Error *vs* Expected Test Error
+
+* A quantity related to test error is the expected 
+test error, obtained by averaging the test error
+over repeated training sets,
+$$
+Ave[Ave((y_0 - \hat{f}(x_0))^2)]
+$$
+where the outer $Ave$ is over the training sets
+that give us $\hat{f}$.
+* Picture this as repeating the following:
+    1. Sample training and test data
+    2. Train the model, and use on the test data
+    to obtain the average squared error
+    
+    and averaging the average from step 2.
+* Cross validation estimates the expected test
+error. 
+    + A procedure with good
+    expected test error tends to have good test
+    error.
+    
 
 ## Leave-Out-One CV (LOOCV)
 
@@ -264,8 +278,7 @@ variable, and (ii) positively correlated.
     using mostly the same data to fit 
     the model each time.
 * For $k$-fold CV with smaller $k$, we average
-fewer MSEs that are (i) less variable and
-(ii) less correlated.
+fewer MSEs that are (i) less variable and (ii) less correlated.
 * Which "wins"? Values $k=5$ or 10
 have been shown to work well empirically
 and are recommended.
@@ -301,7 +314,8 @@ simdat <- function() {
 \scriptsize
 
 ```{r}
-# LOOCV contributions for data set of size 100
+# LOOCV contributions for data set of size n.
+# LOOCV estimate  of test error is their average.
 loocv.contrib <- function() {
   MSE <- rep(NA,n)
   dat <- simdat()
@@ -330,7 +344,7 @@ abline(h=mean(mm)) # LOOCV estimate of test error
 \scriptsize
 
 ```{r}
-# 10-fold CV contributions for data set of size 100
+# 10-fold CV contributions for data set of size n
 cv.contrib <- function(n=100,k=10) {
   MSE <- rep(NA,k)
   dat <- simdat()
@@ -376,7 +390,7 @@ mean(LOOCVres); var(LOOCVres);mean(CVres); var(CVres)
 
 \normalsize
 
-* Can see suggestion of lower bias from LOOCCV, 
+* Can see suggestion of lower bias from LOOCV, 
 but not lower variance of 10-fold CV for this scenario.
 
 ## CV on Classification Problems
