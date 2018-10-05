@@ -484,5 +484,36 @@ fit <- lm(mpg~poly(horsepower,2),data=Auto)
 round(summary(fit)$coefficients[2,],4)
 ```
 
+## Boostrapping with the `boot` Package
 
+* The `boot` package can be used for boostrap sampling
+
+\scriptsize
+
+```{r}
+library(boot)
+# Write a function to take the dataset and indices
+# of a resample as input and return our statistic
+regCoef <- function(dat,inds) {
+  fit <- lm(mpg~poly(horsepower,2),data=dat[inds,])
+  coefficients(fit)[2]
+}
+beta1Boot <- boot(Auto,regCoef,B)
+with(beta1Boot,sd(t)) 
+```
+
+
+## Bootstrap Confidence Intervals
+
+* The percentiles of the bootstrap distribution 
+can also be used as a confidence interval.
+* E.G., the interval between the 2.5th and 
+97.5th percentiles of the bootstrap distribution 
+are an approximate 95\% CI.
+
+\scriptsize
+
+```{r}
+boot.ci(beta1Boot,type="perc")
+```
 
