@@ -274,7 +274,7 @@ data to train, and so will have almost no bias.
 many squared errors that are (i) highly 
 variable, and (ii) positively correlated.
     + Averaging many things is good.
-    + The positive correlation arrises from
+    + The positive correlation arises from
     using mostly the same data to fit 
     the model each time.
 * For $k$-fold CV with smaller $k$, we average
