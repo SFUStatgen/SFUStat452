@@ -304,7 +304,7 @@ n <- 100
 x <- seq(-1,1,length=n)
 plot(x,x+x^2+2*x^3,ylab="f(x)",type="l")
 simdat <- function() {
-  y<-rnorm(n,mean=x+x^2+2*x*3,sd=1)
+  y<-rnorm(n,mean=x+x^2+2*x^3,sd=1)
   data.frame(y=y,x=x)
 }
 ```
