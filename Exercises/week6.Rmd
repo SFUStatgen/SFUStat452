@@ -38,8 +38,8 @@ head(Xfull)
 intercept plus one of the non-intercept columns in
 `X` and return the RSS. Confirm the
 result from `regsubsets()` that the model with
-`Rating` is the best
-the model with Hint: If `i` was the
+`Rating` is the best.  
+Hint: If `i` was the
 index in a `for()` loop from 2 to 12, 
 `dat <- data.frame(Balance=Credit$Balance,X=X[,i])`
 would be the data you need to fit the `i-1`st model.
