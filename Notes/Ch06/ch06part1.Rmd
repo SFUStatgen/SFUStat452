@@ -176,7 +176,7 @@ plot(cfits.fwd,scale="Cp")
 
 * Advantages:
     + Far less computation. Can show forward selection
-    only fits $1 = p(p+1)/2$ models. With 
+    only fits $1 + p(p+1)/2$ models. With 
     $p=20$, $2^p=1048686$ while $1+p(p+1)/2 = 211.
     + Can be applied even when $p>n$.
 * Disadvantage:
@@ -239,11 +239,13 @@ errors.
 * $C_p$ for a model with $d$ (subset of $p$)
 predictors is defined as 
 $$C_p = \frac{1}{n}({\rm RSS} + 2d\hat{\sigma}^2)$$
-or
-$$C'_p = \frac{1}{n\hat{\sigma}^2}({\rm RSS} + 2d\hat{\sigma}^2)$$
+or (Mallow's definition)
+$$C'_p = \frac{\rm RSS}{\hat{\sigma^2}} + 2d - n)$$
 where $\hat{\sigma}^2$ is an estimate of $\sigma^2$
 from a low-bias model.
-* The form of $C_p$ is RSS plus penalty.
+* Ignoring scalings and constants that are the 
+same for all models being compared, $C_p$ is essentially
+RSS plus a penalty that increases with $d$.
 
 ## AIC
 
@@ -251,26 +253,46 @@ from a low-bias model.
 * AIC can be defined for many models fit by maximum 
 likelihood.
 * For linear regression with Gaussian errors
-AIC is essentially $C'_p$.
-    + A small difference is that $\hat{\sigma}^2$ 
+AIC is essentially $C'_p$ up to scale and constant factors.
+    + A difference is that $\hat{\sigma}^2$ 
     in AIC is usually taken to be the estimate
     from the current model, rather than a 
     fixed low-bias model.
+    + For model selection with models fit by least squares,
+    we usually report $C_p$ (or $C'_p$).
 
 ## BIC
 
 * BIC stands for Bayesian Information Criterion and
 is a.k.a Schwartz's criterion.
-* BIC is defined
-as $${\rm BIC} = \frac{1}{n\hat{\sigma}^2}({\rm RSS} + \log_e(N) d\hat{\sigma}^2)$$
-where $N$ is the sample size.
-    + As with AIC  $\hat{\sigma}^2$ 
-    in BIC is usually taken to be the estimate
-    from the current model.
-* Compared to AIC, BIC has a stricter penalty
-term because of the $\log_e(N)$ term in place
-of 2.
-    + $\log_e(N) > 2$ for $N>7$.
+* BIC is defined in the text as
+$${\rm BIC} = \frac{1}{n\hat{\sigma}^2}({\rm RSS} + \log_e(n) d\hat{\sigma}^2)$$
+to highlight similarities with their definition of $C_p$.
+    + For BIC, replace the factor 2 by $\log(n)$ in the 
+    penalty term of $C_p$.
+    + What matters is that BIC is essentially RSS plus
+    a penalty that depends on $d$ and grows 
+    faster with $d$ because of the $\log(n)$.
+    + $\log_e(n) > 2$ for $N>7$.
+    
+## Aside: AIC and BIC in R
+
+* R uses the formulas $AIC = - 2 \ell(\hat{\beta},\hat{\sigma}^2) + 2 p$ and $BIC = - 2 \ell(\hat{\beta},\hat{\sigma}^2) + 2 p$,
+where $\ell$ is the log-likelihood. 
+    + The likelihood is the probability of 
+the data, considered as a function of the parameters.
+    + $p$ is the number of model parameters that have
+been estimated, **including** $\sigma^2$.
+
+\scriptsize
+
+```{r}
+set.seed(1); x <- 1:100; y <- x + rnorm(100)
+ff <- lm(y~x)
+logLik(ff)
+AIC(ff) # -2*logLik(ff) + 2*3
+BIC(ff) # -2*logLik(ff) + log(100)*3
+```
 
 ## Direct Methods
 
