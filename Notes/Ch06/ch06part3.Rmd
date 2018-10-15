@@ -1,0 +1,279 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 6, Part 3: Dimension Reduction Methods'
+author: "Brad McNeney"
+date: '2018-10-14'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3.5,fig.width=5)
+```
+
+## Reduced Dimension Regression
+
+* Transform predictors $X_1,\ldots,X_p$ to
+a lower-dimension set $Z_1,\ldots,Z_M$, for
+$M<p$.
+    + The $Z_m$'s are taken to be linear combinations of the 
+    $X_j$'s: 
+    $$Z_m = \sum_{j=1}^p \phi_{jm} X_j$$
+* Fit a linear model to $Z_1,\ldots,Z_M$
+$$Y = \theta_0 + \sum_{m=1}^M \theta_m Z_m + \epsilon.$$
+Compare to the linear model
+$$Y = \beta_0 + \sum_{j=1}^p \beta_m X_m + \epsilon.$$
+    + Fewer regression coefficients ($M+1 < p+1$).
+
+## Lower Dimension, Constraint on $\beta$'s
+
+* As shown on pages 229,230 of the text,
+the lower-dimension model implies coefficients
+in the original model of the form
+$$\beta_j = \sum_{m=1}^M \theta_m \phi_{jm}$$
+* Thus the $p$ $\beta$s are constrained to be
+functions of $M$ underlying $\theta$s.
+    + Different form of constraints from those in
+    ridge regression and the lasso (recall the 
+    second view of these as constrained maximization).
+* Introduction of a constraint is 
+another way to view the bias/variance trade-off:
+    + constraints mean lower variance, but higher bias
+    on parameter estimates, which translates into 
+    lower variance/higher bias for predictions.
+    
+    
+## Methods for Dimension Reduction
+
+* Principal components -- low-rank approximation of the 
+$X$ data matrix
+* Partial least squares -- explain $X$ by latent variables
+
+## Principal Components Analysis (PCA)
+
+* More details on PCA to follow in Chapter 10.
+* First centre each variable by subtracting its mean.
+* Then, think of principal components (PCs) as
+new coordinates for the data vectors.
+    + The first PC is the direction of greatest variation,
+    + The second PC is the direction of second-greatest
+    variation, orthogonal to the first,
+    + And so on.
+
+## PCs for Advertising Data
+
+
+* Text Figure 6.14:
+The green line is the first PC, the blue 
+line the second.
+
+\begin{center}
+\includegraphics[height=2.5in]{Fig6_14.pdf}
+\end{center}
+
+## PCs as Linear Combinations of $X$'s
+
+* We won't go into the details of how the 
+linear combinations are derived.
+* In the advertising example, the first PC is 
+$$Z_1 = 0.838 X_1 + 0.544 X_2$$
+where $X_1$ is population centred by its mean
+and $X_2$ is advertising expenditure centred by its mean.
+* The coefficients of the linear combination,
+$\phi_{11}= 0.838$ and $\phi_{12}=0.544$,
+are called the first principal component *loadings*.
+
+## Principal Component Scores
+
+* Projecting each point onto the PCs gives the 
+PC scores.
+    + Projecting a data vector 
+    onto a line means finding the point
+    on the line closest to the vector.
+
+* Text Figure 6.15: Black x's are the first PC score
+for each observation, distance of each purple 
+dot from the green line is the second PC score.
+
+\vspace*{-.5in}
+
+\begin{center}
+\includegraphics[height=2in]{Fig6_15.pdf}
+\end{center}
+
+## High-Dimensional Example: Genes Reflect Geography
+
+* First 2 PCs from 
+197,146 genetic markers on 1,387 European individuals
+(Novembre _et al._ 2008)
+
+\begin{center}
+\includegraphics[height=2.5in]{EuropeanGenStr.pdf}
+\end{center}
+
+
+## PCs and PC Scores for the Credit Data
+
+\scriptsize
+
+```{r}
+uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Credit.csv")
+Credit <- read.csv(uu,row.names=1)
+head(Credit,n=3)
+X <- model.matrix(Balance ~ ., data=Credit)
+X <- X[,-1] # Remove intercept
+X <- scale(X) # Centre and scale
+pcs <- prcomp(X)
+```
+
+##
+
+\scriptsize
+
+```{r}
+plot(pcs)
+```
+
+## Loadings for First Two PCs
+
+\scriptsize
+
+```{r}
+pcs$rotation[,1:2]
+```
+
+##
+
+\scriptsize
+
+```{r}
+plot(pcs$x[,1],pcs$x[,2],xlab="First PC",ylab="Second PC")
+```
+
+
+## Principal Components Regression (PCR)
+
+* Take $Z_1,\ldots,Z_M$ to be the first $M$ 
+PC scores.
+    + $M$ can be chosen by cross-validation
+    to minimize estimated test set error.
+* The idea is that a handful of PCs might 
+explain the variation in $X$ **and** the 
+relationship between $X$ and $Y$.
+
+## PCR on the Credit Data
+
+\scriptsize
+
+```{r}
+library(pls) # install.packages("pls")
+set.seed(123)
+cfit <- pcr(Balance ~ ., data=Credit,scale=TRUE,
+            validation="CV")
+```
+
+## Summary
+
+\tiny
+
+```{r}
+summary(cfit)
+```
+
+\normalsize
+
+* Note: `RMSEP` is root mean squared error of prediction,
+the square root of the MSE.
+
+## Plot the Root MSE of Prediction
+
+\scriptsize
+
+```{r}
+validationplot(cfit)
+```
+
+## Extract $\hat{\beta}$'s
+
+* These are the estimates of the coefficients of the $X$'s,
+$$\beta_j = \sum_{m=1}^M \theta_m \phi_{jm}$$
+
+\scriptsize
+
+```{r}
+coef(cfit,ncomp=10)
+```
+
+## Partial Least Squares (PLS) versus PCR
+
+* Statistical learning methods that use
+the response are said to be "supervised", while
+those that do not are "unsupervised".
+* PCR does unsupervised selection of the 
+transformed features $Z_1,\ldots,Z_M$.
+* By contrast, PLS is supervised (sketch of details below).
+* No clear winner between PCR and PLS. 
+    + Supervised dimension reduction may reduce
+    bias by identifying features that are truly 
+    related to $Y$.
+    + However, supervising "... has the potential
+    to increase variance," (text, page 238)
+
+## PLS Directions
+
+* The loadings for the first PLS direction, $Z_1$ are the 
+coefficients from the simple linear 
+regression of $Y$ on each $X_j$.
+* The loadings for the second PLS direction are 
+coefficients from the simple linear regression of
+the *adjusted* variable
+$Y-\hat{Y}$ on the adjusted $X_j-\hat{X}_j$, where
+$\hat{Y}$ and $\hat{X}_j$ are from regressions on $Z_1$.
+    + The residuals are the information in the variables
+    not explained by $Z_1$.
+* The loadings for the third PLS direction are 
+coefficients from the simple linear regression of
+the adjusted variable
+$Y-\hat{Y}$ on the adjusted $X_j-\hat{X}_j$, where
+$\hat{Y}$ and $\hat{X}_j$ are from regressions on $Z_1$
+**and** $Z_2$.
+    + The residuals are the information in the variables
+    not explained by $Z_1$ and $Z_2$.
+* And so on.
+
+
+## PLS on the Credit Data
+
+\scriptsize
+
+```{r}
+cfit <- plsr(Balance ~ ., data=Credit,scale=TRUE,
+            validation="CV")
+```
+
+
+## Summary
+
+\scriptsize
+
+```{r}
+summary(cfit)
+```
+
+## Plot the Root MSE of Prediction
+
+\scriptsize
+
+```{r}
+validationplot(cfit)
+```
+
+## Extract $\hat{\beta}$'s
+
+\scriptsize
+
+```{r}
+coef(cfit,ncomp=4)
+```
