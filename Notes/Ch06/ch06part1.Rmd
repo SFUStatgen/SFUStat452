@@ -266,7 +266,7 @@ AIC is essentially $C'_p$ up to scale and constant factors.
 * BIC stands for Bayesian Information Criterion and
 is a.k.a Schwartz's criterion.
 * BIC is defined in the text as
-$${\rm BIC} = \frac{1}{n\hat{\sigma}^2}({\rm RSS} + \log_e(n) d\hat{\sigma}^2)$$
+$${\rm BIC} = \frac{1}{n}({\rm RSS} + \log_e(n) d\hat{\sigma}^2)$$
 to highlight similarities with their definition of $C_p$.
     + For BIC, replace the factor 2 by $\log(n)$ in the 
     penalty term of $C_p$.
