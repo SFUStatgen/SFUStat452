@@ -115,8 +115,8 @@ ggplot(Xlong,aes(x=age,y=b,color=basisFun)) + geom_line() +
 
 \normalsize
 
-* Note: In the end, the basis functions are not
-restricted to the intervals between/outside the knots
+* Note: The basis functions are not
+restricted to the intervals defined by the knots
 
 ## Constraints Make Smooth Functions
 
