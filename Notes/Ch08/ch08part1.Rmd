@@ -265,9 +265,11 @@ of heterogeneity within the region.
   
 * Classification error is not sensitive
 enough for tree growing.
-* Instead prefer the Gini index 
+* Instead prefer the Gini index (sum of variances;
+small when all $\hat{p}$'s near 0 or 1)
 $$G_m = \sum_{k=1}^K \hat{p}_{mk} (1-\hat{p}_{mk})$$
-or the cross-entropy
+or the cross-entropy (also small when all $\hat{p}$'s
+near 0 or 1)
 $$D_m = \sum_{k=1}^K \hat{p}_{mk} \log \hat{p}_{mk},$$
 where $\hat{p}_{mk}$ is the proportion of 
 observations in region $m$ that are from class $k$
@@ -299,6 +301,14 @@ head(Heart,n=3)
 
 * Text, Fig. 8.6: Unpruned tree, estimated MSE, 
 best tree
+
+<!--
+```{r}
+tt <- tree(AHD ~ ., data=Heart)
+plot(tt)
+# Value b of Thal is normal when I read it in
+```
+-->
 
 ## Trees Versus Linear Models
 
