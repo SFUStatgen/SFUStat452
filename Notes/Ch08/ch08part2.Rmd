@@ -206,10 +206,22 @@ library(randomForest)
 set.seed(1)
 bag.heart <- randomForest(AHD ~ ., data=Heart,subset=train,
                           mtry=13,importance=TRUE) #m=p is bagging
-bag.heart
+bag.heart # Notice OOB estimate of error rate
 ```
 
-##
+## Misclassification Error from Test Set
+
+\scriptsize
+
+```{r}
+hpred <- predict(bag.heart,newdata=Heart[-train,],type="class")
+tt <- table(hpred,Heart[-train,]$AHD)
+tt
+sum(tt[row(tt) != col(tt)])/sum(tt)
+```
+
+
+## Variable Importance Plot
 
 \scriptsize
 
@@ -220,17 +232,6 @@ varImpPlot(bag.heart) # or importance(bag.heart)
 \normalsize
 
 * See `help("importance")` for a definition of accuracy.
-
-## Classification Error for Bagged Trees
-
-\scriptsize
-
-```{r}
-bag.hpred <- predict(bag.heart,newdata=Heart[-train,],type="class")
-tt <- table(bag.hpred,Heart[-train,]$AHD)
-tt
-sum(tt[row(tt) != col(tt)])/sum(tt)
-```
 
 ## Random Forests
 
@@ -291,7 +292,6 @@ error has stabilized.
 
 \small
 
-* Text, Fig. 8.8. Not sure what "Test" error is based on,
-but assume it is from a hold-out validation sample.
-OOB error is lower than test error; maybe trees
-are based on more data (no hold-out)?
+* Text, Fig. 8.8. Details not important, but can see
+that the estimated test error levels off at about
+$B=75$ trees.
