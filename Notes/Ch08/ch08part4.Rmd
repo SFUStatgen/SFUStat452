@@ -137,5 +137,14 @@ yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
 mean((y-yhat)^2)
 ```
 
+## Using the Test Set for Tuning
 
+* Note: Using the test set to tune the boosting algorithm does
+not lead to valid test set estimates.
+    * We are essentially fitting the test data.
+* If we require a test set for tuning, it should not be
+the one we use to evaluate the tuned algorithm.
+    * We should split the data into three parts: (i) training
+    (can be the largest part), (ii) tuning test set, 
+    and (iii) test set.
 
