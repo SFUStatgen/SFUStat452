@@ -192,7 +192,7 @@ take $f_m(x) = f_{m-1}(x) + \lambda T(x;\gamma_m)$.
 
 * Recall that the best tree fit the to Heart data
 had test-set misclassification rate about 27%,
-* Random forest had a test-set misclassification of about 17%.
+* Random forest had a test-set misclassification of about 21%.
 
 
 \scriptsize
