@@ -173,9 +173,10 @@ pcout.i$rotation
 
 * We can visualize the first two PCs on a scatterplot.
 * A biplot shows 
-    (i) the PC scores for observational units, and 
+    (i) the PC scores for observational units (see left and
+    bottom axes), and 
     (ii) the loadings of the features that define the first
-    two PCs
+    two PCs (see top and right axes)
     
 
 ##
