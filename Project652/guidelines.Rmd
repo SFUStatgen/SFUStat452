@@ -20,20 +20,23 @@ two parts.
 
 ### Health Utility Indices and Cognitive Health Status
 
-The file `HUI.csv` contains 8 health-utility-index (HUI)
-variables. This is a subset of the 13 variables described
+The file `HUI.csv` contains a training dataset comprised
+of 8 health-utility-index (HUI)
+variables. The 8 are a subset of the 13 variables described
 on pages 45-54 of the file `CCHS_HA_Derived_variables.pdf`.
-The first, `HUIDCOG` is a categorical variable
+The first variable, `HUIDCOG` is a categorical variable
 with six levels of cognitive ability. See the Derived variables
 document for a description of the levels.
 
 ```{r}
 hui <- read.csv("hui.csv")
 dim(hui)
-head(hui,n=3)
+summary(hui)
 ```
 
-Use the other HUIs to predict `HUIDGOC`.
+Use the other HUIs to predict `HUIDGOC`. I have a 
+hold-out test dataset on which you will evenually evaluate
+your predictions.
 
 ### Predicting HUIs with Other Variables
 
