@@ -56,10 +56,7 @@ and it is not likely to be read.
 You are encouraged to 
 try several prediction methods, and can compare 
 these methods, but your report should focus on 
-one method in particular. I have not held out
-a portion of the data to use for testing your
-prediction method. Instead, you should summarize 
-the steps you took to estimate test error.
+one method in particular. 
 
 ## Grading Criteria
 
