@@ -1,0 +1,164 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 10, part 1.5: Introduction to Multiple Correspondence Analysis'
+author: "Brad McNeney"
+date: '2018-11-14'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.width=5)
+```
+
+## Multiple Correspondence Analysis (MCA)
+
+* An exploratory analysis methodology for 
+multivariate datasets with categorical variables.
+* In basic form, it is PCA on dummy variables 
+that represent the categorical variables.
+* Illustrate with the health utilities index (HUI)
+variables from the Canadian Community Health
+Survey - Healthy Aging
+
+## HUI Data
+
+* Read from the Stat 652 Project folder.
+
+\scriptsize
+
+```{r}
+hui <- read.csv("../../Project652/HUI.csv")
+names(hui)
+```
+
+## Summaries
+
+\scriptsize
+
+```{r}
+summary(hui)
+```
+
+## Remove records with missing values
+
+* I will consider the response `NOT STATED` 
+to be missing data. 
+    + Remove subjects with any missing data
+    
+\scriptsize
+
+```{r}
+recode_ns <- function(x) {
+  x[x=="NOT STATED"] <- NA
+  x <- droplevels(x)
+  x
+}
+for(i in 1:ncol(hui)) {
+  hui[,i] <- recode_ns(hui[,i])
+}
+hui <- na.omit(hui)
+dim(hui)
+```
+
+## `HUIDCOG`
+
+* Cognitive function (our focus) with levels:
+
+\small
+
+1. Able to remember most things, think clearly and solve day to day problems
+2. Able to remember most things, but have a little difficulty when trying to think and solve day to day problems
+3. Somewhat forgetful, but able to think clearly and solve day to day problems
+4. Somewhat forgetful, and have a little difficulty when trying to think or solve day to day problems
+5. Very forgetful, and have great difficulty when trying to think or solve day to day problems
+6. Unable to remember anything at all, and unable to think or solve day to day problems
+
+##
+
+\scriptsize
+
+```{r}
+levels(hui$HUIDCOG) <- as.character(1:6)
+table(hui$HUIDCOG)
+```
+
+## Pairwise summaries
+
+* Relationship between `HUIDCOG` and others
+
+\scriptsize
+
+```{r}
+tt <- xtabs(~DHHGAGE+HUIDCOG,data=hui)
+tt
+```
+
+## Pairwise summaries, cont.
+
+* Age distributions for each cognitive level
+    + Proportions of column variable for each 
+    row (level of `HUIDCOG`).
+
+\scriptsize
+
+```{r}
+round(prop.table(tt,margin=2),2)
+```
+
+## Pairwise summaries, cont.
+
+* Relationship between `HUIDCOG` and `HUIDEX`.
+
+\scriptsize
+
+```{r}
+tt <- xtabs(~HUIGDEX+HUIDCOG,data=hui)
+tt
+```
+
+## Pairwise summaries, cont.
+
+\scriptsize
+
+```{r}
+round(prop.table(tt,margin=2),2)
+```
+
+\normalsize
+
+* And so on ...
+
+## Correspondence Analysis (CA)
+
+* Write the categorical variables as dummy variables
+and do a biplot of the result; e.g., for the 
+HUIs.
+
+```{r,cache=TRUE}
+library(dplyr)
+hsub <- select(hui,starts_with("HUI"))
+X <- model.matrix(~.,data=hsub)[,-1]
+X <- scale(X)
+pp <- prcomp(X)
+# biplot(pp) -- too many points, too messy
+```
+
+##
+
+```{r}
+library(FactoMineR)
+res.mca <- MCA(hsub)
+```
+
+##
+
+\scriptsize
+
+```{r}
+plot(res.mca,invisible=c("ind"),cex=0.5)
+```
+
+
