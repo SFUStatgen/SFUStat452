@@ -77,9 +77,11 @@ The reports will be judged on the following criteria.
 * Content (17): 
 The content should be clear, accurate, complete and at the 
 level of students in Stat 452. In the Methods you should provide a brief
-description of any statistical methods you use that were covered
-in class, and more in-depth descriptions of any methods that are
-related to, but not covered in class. Methods you considered 
+description of any statistical methods you use. Please
+restrict yourself to methods that were covered
+in class. You can mention methods not covered as
+areas of future work. 
+Methods you considered 
 but were not the focus of your report should be briefly mentioned 
 here too.
 In Results you should summarize and interpret the fitted model. 
