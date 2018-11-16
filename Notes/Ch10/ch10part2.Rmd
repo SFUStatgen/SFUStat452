@@ -24,7 +24,7 @@ and *dissimilar* between clusters.
 * Example: Suppose we have $n$ observations of $p$ features for cancer
 patients. 
     + We can cluster to look for cancer sub-types.
-    + Howerver, these clusters will be highly dependent on how we measure similarity/dissimilarity.  
+    + However, these clusters will be highly dependent on how we measure similarity/dissimilarity.  
     + Plus, we don't *know* that clusters correspond to cancer sub-types.
 
 
