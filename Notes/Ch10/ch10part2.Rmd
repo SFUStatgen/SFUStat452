@@ -49,7 +49,7 @@ clusters.
 
 ## K-means Clustering
 
-* Choose the desired number of clusters, $K.$  The $K$-means clustering algorithm will assign each observation to *exactly one* of the $K$ clusters.
+* Choose the desired number of clusters, $K$.  The $K$-means clustering algorithm will assign each observation to *exactly one* of the $K$ clusters.
 * Let $C_k$ be the set of indices for observations assigned to cluster
 $k$, $k=1,\ldots,K$.
 * $K$-means clustering chooses clusters to solve
@@ -59,7 +59,7 @@ where $W(C_k)$ is a measure of the amount by which observations within cluster $
 
 ## K-means Clustering: Choice of $W(C_k)$
 
-* For continuous variables, the standard
+* For quantitative variables, the standard
 choice for $W(C_k)$ is the squared Euclidean distance,
 $$W(C_k)=\frac{1}{\vert C_k\vert}\sum_{i,i^\prime\in C_k}\sum_{j=1}^p(x_{ij}-x_{i^\prime j})^2$$
 where $\vert C_k\vert$ denotes the number of observations in cluster $k$.
@@ -94,7 +94,9 @@ stop changing:
 * Text, Figure 10.6. 
 Progress of the $K$-means algorithm with $K=3.$  
 
+##
 
+* See the video demo at http://www.youtube.com/watch?v=zaKjh2N8jN4.
 
 ## K-means Clustering and Local Minima
 
@@ -105,9 +107,6 @@ resulting in a *local* minimum.
 Hence, in practice we re-run the algorithm several 
 times and keep the solution that achieves the lowest 
 overall criterion value.
-* See the video demo at http://www.youtube.com/watch?v=zaKjh2N8jN4.
-
-
 
 ## K-means Clustering with Different Initialization
 
@@ -116,7 +115,8 @@ overall criterion value.
 \end{center}
 \scriptsize
 Text, Fig 10.7. $K$-means clustering performed six times on the same data with $K=3$ different random initializations.  Above each plot is the value of the objective function. Three different local optimums were found.
-The overall minimum is 235.8.
+The overall minimum, found four times, is 235.8.
+Note: Cluster labels different in 3 of 4.
 
 ## $K$ Means Clustering of the Iris Data
 
@@ -146,6 +146,7 @@ ggplot(iris,aes(x=Sepal.Width,y=Sepal.Length,color=Species)) +
 
 ```{r}
 library(dplyr)
+set.seed(1)
 irisX <- iris %>% select(-Species) %>% scale()
 kout3 <- kmeans(irisX,centers=3,nstart=10)
 iris <- data.frame(iris,Clusters=factor(kout3$cluster))
@@ -276,10 +277,12 @@ below average, this suggests the cluster can be merged with another.
 * For observation $i$ in cluster $k$, 
 the silhouette width $s(i)$ is defined as follows.
 * Let $a(i)$ be the average dissimilarity between $i$ and all
-other observations in cluster $k$.
-* Let $d(i,C)$ be the average dissimilarity between $i$ and all observations
+other observations in **cluster $k$**.
+* For **any other cluster** $C$ ($i$ not in $C$), 
+let $d(i,C)$ be the average dissimilarity between $i$ and all observations
 in cluster $C$.
-* Let $b(i) = \min_C d(i,C)$.
+* Let $b(i) = \min_C d(i,C)$ (minimum over all $C$
+such that $i$ not in $C$).
 * Then 
 $$s(i) = \frac{b(i)-a(i)}{\max(a(i),b(i))}$$
     + Note: $a(i)$ is a *dissimilarity* measure, and should be
@@ -312,3 +315,5 @@ sil5 <- silhouette(pam(irisX,k=5))
 plot(sil5,main=""); abline(v=mean(sil5[,"sil_width"]))
 ```
 
+* Had to go to about $K=15$ before silhouettes 
+suggested mergin clusters (not shown).
