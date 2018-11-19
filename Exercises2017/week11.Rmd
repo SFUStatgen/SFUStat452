@@ -42,7 +42,7 @@ rate. Enter your rate on the Canvas quiz.
 2. Fit a boosted tree model to the training data with `AHD` as the binary 
 response and all other variables as explanatory variables. Use
 500 trees and the default shrinkage value. Before calling 
-`gmb()`, set the random seed to 1.
+`gbm()`, set the random seed to 1.
 Use the boosted tree 
 model to predict `AHD` in the test set using the 
 probability threshold 0.5. 
