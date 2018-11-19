@@ -36,6 +36,8 @@ names(hsub)
 
 ## Extract PCs from MCA
 
+\scriptsize
+
 ```{r}
 library(FactoMineR)
 res.mca <- MCA(hsub)
@@ -51,6 +53,9 @@ plot(huiPCs[,1:2])
 ```
 
 ## Cluster on PCs
+
+* Will work with a small subset (first 1000 people)
+to keep computation and overplotting down.
 
 \scriptsize
 
