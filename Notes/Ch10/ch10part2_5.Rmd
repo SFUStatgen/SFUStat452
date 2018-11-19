@@ -1,0 +1,99 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 10, part 2.5: Clustering with Categorical $X$'
+author: "Brad McNeney"
+date: '2018-11-19'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.width=5)
+```
+
+
+## HUI Data - Read and Process as Before
+
+\scriptsize
+
+```{r}
+hui <- read.csv("../../Project652/HUI.csv")
+recode_ns <- function(x) {
+  x[x=="NOT STATED"] <- NA
+  x <- droplevels(x)
+  x
+}
+for(i in 1:ncol(hui)) {
+  hui[,i] <- recode_ns(hui[,i])
+}
+hui <- na.omit(hui)
+library(dplyr)
+hsub <- select(hui,starts_with("HUI"))
+names(hsub)
+```
+
+## Extract PCs from MCA
+
+```{r}
+library(FactoMineR)
+res.mca <- MCA(hsub)
+huiPCs <- res.mca$ind$coord
+```
+
+## 
+
+\scriptsize
+
+```{r}
+plot(huiPCs[,1:2])
+```
+
+## Cluster on PCs
+
+\scriptsize
+
+```{r}
+n <- 1000
+hk <- kmeans(huiPCs,centers=4,nstart=10)
+# plot for a small sample of the dataset
+huiPCs <- data.frame(huiPCs[1:n,])
+huiPCs$Clusters <- factor(hk$cluster[1:n])
+huiPCs$age <- hui$DHHGAGE[1:n]
+huiPCs$sex <- hui$DHH_SEX[1:n]
+```
+
+##
+
+\scriptsize
+
+```{r}
+library(ggplot2)
+ggplot(huiPCs,
+       aes(x=Dim.1,y=Dim.2,shape=Clusters)) +
+  geom_point()
+```
+
+
+
+##
+
+\scriptsize
+
+```{r}
+ggplot(huiPCs,
+       aes(x=Dim.1,y=Dim.2,color=age,shape=Clusters)) +
+  geom_point()
+```
+
+##
+
+\scriptsize
+
+```{r}
+ggplot(huiPCs,
+       aes(x=Dim.1,y=Dim.2,color=sex,shape=Clusters)) +
+  geom_point()
+```
+
