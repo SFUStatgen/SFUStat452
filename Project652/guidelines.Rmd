@@ -11,14 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Data 
 
-The data are from the Canadian Community Health Survey --
+The data are from the Canadian Community Health Survey (CCHS) --
 Healthy Aging module. Documentation for the study
 is available in the Documentation folder. Please read
 Sections 1 and 2 of the User Guide document 
 (`CCHS_HA_User_Guide.pdf`). The project will have
 two parts.
 
-### Health Utility Indices and Cognitive Health Status
+### Part I: Health Utility Indices and Cognitive Health Status
 
 The file `HUI.csv` contains a training dataset comprised
 of 8 health-utility-index (HUI)
@@ -35,15 +35,43 @@ summary(hui)
 ```
 
 Use the other HUIs to predict `HUIDGOC`. I have a 
-hold-out test dataset on which you will evenually evaluate
+hold-out test dataset on which you will eventually evaluate
 your predictions.
 
-### Predicting HUIs with Other Variables
+### Part II: Predicting a HUI Score with Other Variables
 
-In this part of the project you will predict HUIs
-with a subset of the 600-or-so other variables
-available in the Health Aging survey. Details
-TBD.
+In this part of the project you will 
+use a larger (wider) dataset called `HStrain` 
+that consists of 591 variables measured on 
+10000 subjects.
+You will find these data in the file `HStrain.csv.zip` in the 
+Data directory; unzip it and 
+use the R function `read.csv()` to read it into R.
+I have removed all of the subjects 
+with `NOT STATED` entries in any of the 591 variables.
+
+In the dataset, the categorical
+HUI variables have been removed and
+replaced by a single
+score called `HUIDHSI`. The description of `HUIDHSI`
+is as follows:
+
+*This derived variable is a Health Utilities Index which provides a description of an individual’s overall functional health, based
+on eight attributes: vision, hearing, speech, ambulation (ability to get around), dexterity (use of hands and fingers), emotion
+(feelings), cognition (memory and thinking) and pain (in HUP module). The version of the index used in CCHS is adapted from
+the HUI Mark 3 (HUI3). The index is designed to produce an overall health utility score. This multi-attribute utility index
+produces a score ranging from 1.000 (perfect health), through 0.000 (health status equal to death) to -0.360 (health status
+worse than death).*
+
+Your task is to predict `HUIDHSI` with the
+other 590 variables in the `HStrain` dataset.
+You may work with `HUIDHIS` as-is (a quantitative
+variable), **or** break it into a binary variable
+that has value 0 if `HUIDHIS` is less than the 
+median value of 0.905, and 1 otherwise.
+I have a 
+hold-out test dataset on which you will eventually evaluate
+your predictions. 
 
 ## Project Length and Scope
 
