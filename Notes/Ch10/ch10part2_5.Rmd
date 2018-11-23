@@ -77,10 +77,8 @@ huiPCs$sex <- hui$DHH_SEX[1:n]
 library(ggplot2)
 ggplot(huiPCs,
        aes(x=Dim.1,y=Dim.2,shape=Clusters)) +
-  geom_point()
+  geom_point(alpha=.4)
 ```
-
-
 
 ##
 

@@ -163,7 +163,8 @@ complete linkage.
   
 ## Sensitivity to Linkage
 
-* Figure 10.10 from the text:
+* Figure 10.12 from the text. Note the imbalance
+in the dendrogram under single linkage:
 
 \vspace*{-.1in}
 
@@ -390,8 +391,6 @@ plot(pcout$x[,1],pcout$x[,2],col=ccols,pch=cutree(hcout,k=4))
 ```
 
 \normalsize
-
-* Less satisfying than the $K$-means clusters?
 
 
 
