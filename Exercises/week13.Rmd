@@ -1,0 +1,55 @@
+---
+title: "Week 13 Exercises"
+author: "Brad McNeney"
+date: '2018-11-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will cluster on the US Arrests dataset that
+comes with R.
+There is a short quiz on Canvas named
+`Week 13 Tutorial Quiz` for you to fill out after doing these questions.
+
+
+```{r}
+data(USArrests)
+head(USArrests)
+```
+
+1. **Without any scaling or centring of the data** perform hierarchical clustering with 
+complete linkage and Euclidean distance.
+Then cut the tree at the height that 
+produces three clusters and report the 
+states in each cluster.
+
+
+2. Now **centre and scale** the variables to 
+have mean 0 and SD 1 and perform the clustering
+with complete linkage and Euclidean distance.
+Cut the tree at the height that 
+produces three clusters and report the 
+states in each cluster.
+
+
+3. Using the centred and scaled data, compute the
+first two PCs. Do a scatterplot of the first
+two PC scores for each of the US states and
+colour the points by the three-cluster assignments
+from question 2.
+
+4. Using the centred and scaled data, 
+perform the clustering
+with single linkage and Manhattan distance.
+Cut the tree at the height that 
+produces three clusters and report the 
+states in each cluster.
+
+
+5.  Do a scatterplot of the first
+two PC scores for each of the US states and
+colour the points by the three-cluster assignments
+from question 4.
