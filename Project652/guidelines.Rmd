@@ -102,7 +102,7 @@ The report should have the following sections
     
 The reports will be judged on the following criteria.
 
-* Content (17): 
+* Content (20): 
 The content should be clear, accurate, complete and at the 
 level of students in Stat 452. In the Methods you should provide a brief
 description of any statistical methods you use. Please
@@ -121,15 +121,16 @@ discuss short-comings of your approach, and, optionally,
 ideas for further work.
 * Organization (3): Though the report is structured, you should
 present your ideas logically within each section.
-* References (3): You must properly attribute the ideas and 
-work of others.
 * Grammar and spelling (2): Please proof-read your report.
 
 ### Code (15 marks)
 
 The code in your Appendix
-should be correct, readable and should knit without
-errors. A secondary consideration is efficiency. 
+should look correct and be readable. 
+Given the size of the dataset, you do
+not need to provide run-able code for
+all analyses. Use `{r, eval=FALSE}` in your computationally-intensive code chunks
+to prevent them from running.
 The Appendix will be judged on the following criteria.
 
 * Software Details (2): List the version of R you are using
