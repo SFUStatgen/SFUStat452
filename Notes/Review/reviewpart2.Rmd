@@ -1,0 +1,218 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Review Part 2: Predicting a HUI score'
+author: "Brad McNeney"
+date: '2018-11-26'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+```
+
+## Data
+
+* One of the datasets given to the Stat 652 class
+includes 590 explanatory variables and a 
+health utilities index score, called HUIDHSI.
+
+\scriptsize
+
+*This derived variable is a Health Utilities Index which provides a description of an individual’s overall functional health, based
+on eight attributes: vision, hearing, speech, ambulation (ability to get around), dexterity (use of hands and fingers), emotion
+(feelings), cognition (memory and thinking) and pain (in HUP module). The version of the index used in CCHS is adapted from
+the HUI Mark 3 (HUI3). The index is designed to produce an overall health utility score. This multi-attribute utility index
+produces a score ranging from 1.000 (perfect health), through 0.000 (health status equal to death) to -0.360 (health status
+worse than death).*
+
+##
+
+* I have unzipped the data file in my copy of 
+the Project652 directory on github.
+
+\scriptsize
+
+```{r, cache=TRUE}
+hs <- read.csv("../../Project652/HStrain.csv")
+```
+
+## 
+
+* 591 variables, grouped into 38 categories, 
+indicated by the first three letters of the 
+variable names:
+
+\scriptsize
+
+```{r}
+cn <- colnames(hs)
+table(substr(cn,start=1,stop=3))
+head(sort(cn),n=4) # Activities of Daily Living
+```
+
+## Survey information not useful for prediction
+
+* The variables that start with `ADM` are 
+to do with administering the survey and 
+are not useful for prediction.
+* For example, `ADM_RNO` is a sequential
+record number, `ADM_N09` indicates whether
+the interview was by phone, in-person, etc.
+* I will remove these.
+
+
+\scriptsize
+
+```{r}
+library(dplyr)
+hs <- select(hs,-starts_with("ADM"))
+```
+
+
+## Summary variables
+
+* Several categories of variable have an overall 
+summary score, or classification, developed by
+survey experts.
+* For example, the Activities of Daily Living
+(ADL) variables are summarized by `ADLDCLS` 
+(page 158 of data dictionary):
+
+\scriptsize
+
+*ADLDCLS - Instrumental & Basic Activities of Daily Living Class. -
+Based on ADLDCLST and ADLDMEA. This variable is an overall summary measure of ratings of the ADL capacity-instrumental and physical dimensions.The instrument and the derived variable classification are developed from the activities of daily living component of the OARS Multidimensional Functional Assessment Questionnaire (OMFAQ). See documentation on derived variables.*
+
+```{r}
+summary(hs$ADLDCLS)
+```
+
+## Choice of summary variable
+
+* Some sets of variables do not have a 
+single score, but may have several 
+that could be useful.
+* For example the caregive variables `CAG`
+tell us about care responsibilities (parent,
+spouse, neighbor, etc.)
+    + `CAGDFAP` records the frequency of
+    care (rarely, monthly, weekly, daily, etc.)
+    + `CAGDIAP` records frequency and number
+    of hours (daily - 1 hour, daily - 3 hours, etc.)
+
+
+## Making our own score
+
+* Some groups of variables have no 
+summary score.
+* Can compute a few PCs from 
+a group of survey questions. 
+* Example, `CIH` variables (questions
+about improving health).
+
+\scriptsize
+
+```{r,cache=TRUE}
+library(FactoMineR)
+res.mca <- MCA(select(hs,starts_with("CIH")))
+```
+
+##
+
+\scriptsize
+
+```{r}
+CIHPCs <- res.mca$ind$coord[,1:4] # first 4 explain 50%
+colnames(CIHPCs) <- paste("CIH",colnames(CIHPCs))
+```
+
+    
+## My choices
+
+\scriptsize
+
+```{r}
+hsred <- select(hs,
+          ADLDCLS,ALCDTTM,CAGDFAP,CCCF1,CCCDCPD,
+          CR1FRHC,CR2DTHC,CR2DFAR,DPSDSF,EDUDR04,
+          FALG02,GENDHDI,GENDMHI,HC2FCOP,
+          HUIDHSI, # response
+          HUPDPAD,HWTGBMI,IN2GHH,LONDSCR,MEDF1,
+          NURDHNR,PA2DSCR,SLP_02,SLSDCLS,
+          SMKDSTY,SPAFPAR,starts_with("SSAD"))
+hsred <- data.frame(hsred,CIHPCs)
+```
+
+
+## Subset selection
+
+\scriptsize
+
+```{r}
+library(leaps)
+rr <- regsubsets(HUIDHSI ~ .,data=hsred,nvmax=40,
+                 method="forward")
+ss <- summary(rr)
+which.min(ss$bic)
+# coef(rr,id=30) Important variables are
+# Activities of daily living, general health, 
+# satisfaction with life, smoking status, two
+# of our "improve health" PCs, and some others
+```
+
+##
+
+\scriptsize
+
+```{r}
+Y <- hs$HUIDHSI
+Xfull <- model.matrix(HUIDHSI ~ .,data=hsred)
+Xred <- Xfull[,ss$which[30,]]
+ll <- lm.fit(Xred,Y)
+```
+
+##
+
+```{r}
+dd <- data.frame(fitted=ll$fitted,residuals=ll$residuals)
+library(ggplot2)
+ggplot(dd,aes(x=fitted,y=residuals)) + geom_point(alpha=.1)
+```
+
+## Lasso
+
+\scriptsize
+
+```{r}
+library(glmnet)
+Y <- hs$HUIDHSI
+Xfull <- model.matrix(HUIDHSI ~ .,data=hsred)[,-1]
+Xfull <- scale(Xfull)
+lambdas <- 10^{seq(from=-3,to=5,length=100)}
+ll <- glmnet(Xfull,Y,alpha=1,lambda=lambdas)
+cv.lafit <- cv.glmnet(Xfull,Y,alpha=1,lambda=lambdas)
+```
+
+##
+
+\scriptsize
+
+```{r}
+plot(cv.lafit)
+la.best.lam <- cv.lafit$lambda.1se
+```
+
+##
+
+\tiny
+
+```{r}
+ll <- glmnet(Xfull,Y,alpha=1,lambda=la.best.lam)
+coef(ll)
+```
+
+
+
