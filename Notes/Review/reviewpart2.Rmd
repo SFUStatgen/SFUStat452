@@ -146,11 +146,26 @@ hsred <- select(hs,
 hsred <- data.frame(hsred,CIHPCs)
 ```
 
+## Centre and Scale
+
+* We will apply different statistical methods, some
+of which depend on scaling of the features. 
+* To make all results comparable, scale the features now.
+* First have to convert factors to dummy variables
+with `model.matrix()`.
+    + Leave out the intercept, though.
+
+```{r}
+tem <- model.matrix(HUIDHSI ~ .,data=hsred)[,-1]
+X <- as.data.frame(scale(tem))
+Y <- hsred$HUIDHSI  # could also scale Y, but we won't
+```
+
 ## Training and test sets
 
 * To compare methods we'll divide our 10000 observations
 into training and test sets. 
-* I'll go with a 70\% training set
+* I'll go with a 70\% training set.
 
 \scriptsize
 
@@ -158,8 +173,8 @@ into training and test sets.
 set.seed(123)
 n.train <- 7000
 train <- sample(1:nrow(hs),replace=FALSE,size=n.train)
-hsred.train <- hsred[train,]
-hsred.test <- hsred[-train,]
+X.train <- X[train,]; Y.train <- Y[train]
+X.test <- X[-train,]; Y.test <- Y[-train]
 ```
 
 ## Subset selection
@@ -168,38 +183,28 @@ hsred.test <- hsred[-train,]
 
 ```{r}
 library(leaps)
-rr <- regsubsets(HUIDHSI ~ .,data=hsred.train,nvmax=40,
+rr <- regsubsets(X.train,Y.train,nvmax=40,
                  method="forward")
 ss <- summary(rr)
 pbest <- which.min(ss$bic)
-# coef(rr,id=30) Important variables are
-# Activities of daily living, general health, 
-# satisfaction with life, smoking status, two
-# of our "improve health" PCs, and some others
+pbest
+# coef(rr,id=29) 
 ```
 
-##
+* Important variables are from Activities of Daily Living, general health, satisfaction with life, smoking status, the first "improve health" PC, and some others.
+* Also includes `HUPDPAD`, which should have been
+exlcuded from the dataset, because it is one of the 
+variables used to create the response `HUIDHSI` (oops).
+
+## Test MSE of subset regression
 
 \scriptsize
 
 ```{r}
-Xfull.train <- model.matrix(HUIDHSI ~ .,data=hsred.train)
-Xred <- Xfull.train[,ss$which[pbest,]]
-Y.train <- hsred.train$HUIDHSI
-ll <- lm.fit(Xred,Y.train)
-Xfull.test <- model.matrix(HUIDHSI ~ .,data=hsred.test)
-Xred <- Xfull.test[,ss$which[pbest,]]
-pred.test <- Xred %*% ll$coef
-Y.test <- hsred.test$HUIDHSI
+cols<- ss$which[pbest,-1] # don't include intercept
+Xred <- as.matrix(X.test[,cols])
+pred.test <- cbind(1,Xred) %*%  coef(rr,id=29)
 mean((Y.test - pred.test)^2)
-```
-
-##
-
-```{r}
-dd <- data.frame(fitted=ll$fitted,residuals=ll$residuals)
-library(ggplot2)
-ggplot(dd,aes(x=fitted,y=residuals)) + geom_point(alpha=.1)
 ```
 
 ## Lasso
@@ -209,7 +214,7 @@ ggplot(dd,aes(x=fitted,y=residuals)) + geom_point(alpha=.1)
 ```{r}
 library(glmnet)
 lambdas <- 10^{seq(from=-3,to=5,length=100)}
-cv.lafit <- cv.glmnet(Xfull.train,Y.train,alpha=1,lambda=lambdas)
+cv.lafit <- cv.glmnet(as.matrix(X.train),Y.train,alpha=1,lambda=lambdas)
 ```
 
 ##
@@ -223,13 +228,13 @@ la.best.lam <- cv.lafit$lambda.1se
 
 ## Lasso coefficients
 
-* A slightly larger set of non-zero coefficients
-than subset selection, but very similar.
+* A similar (but not identical) set of non-zero
+coefficients.
 
 \tiny
 
 ```{r}
-ll <- glmnet(Xfull.train,Y.train,alpha=1,lambda=la.best.lam)
+ll <- glmnet(as.matrix(X.train),Y.train,alpha=1,lambda=la.best.lam)
 coef(ll)
 ```
 
@@ -238,7 +243,7 @@ coef(ll)
 \scriptsize
 
 ```{r}
-pred.test <- predict(ll,Xfull.test)
+pred.test <- predict(ll,as.matrix(X.test))
 mean((Y.test-pred.test)^2)
 ```
 
@@ -246,32 +251,39 @@ mean((Y.test-pred.test)^2)
 
 * Computationally intensive, and computation 
 grows with the number of features and observations.
-* With the HS data we have 80 features -- need
+* With many features and a large sample size, may need
 to filter some out, or need to reduce the 
 sample size while we explore which features
 are important.
 
 ## Use features found by lasso or subset selection
 
-
+* Could do something like the following to 
+use a subset of the features.
+    + Here I pick out the features chosen by lasso
+    
 \scriptsize
 
 ```{r}
 nonz <- (as.numeric(coef(ll))!=0)[-1] # rm intercept
-hsred2.train <- data.frame(HUIDHSI=Y.train,Xfull.train[,nonz])
+hsred2.train <- data.frame(HUIDHSI=Y.train,X.train[,nonz])
 ```
 
 
-## 
+## Random forest with all features
+
+* My laptop can handle all features, but 
+I've chosen to build only 200 trees.
 
 \scriptsize
 
 ```{r,cache=TRUE}
 library(randomForest)
 set.seed(1)
-bb <- randomForest(HUIDHSI ~ .,data=hsred2.train,ntree=200,
-                mtry=sqrt(ncol(hsred2.train)),importance=TRUE)
-varImpPlot(bb)
+bb <- randomForest(X.train,y=Y.train,xtest=X.test,
+          ytest=Y.test,ntree=200,
+          mtry=sqrt(ncol(X.train)),importance=TRUE)
+varImpPlot(bb,type=1) # HUPDPAD levels 4,5,3 important
 ```
 
 ##
@@ -279,7 +291,53 @@ varImpPlot(bb)
 \scriptsize
 
 ```{r}
-hsred2.test <- data.frame(HUIDHSI=Y.test,Xfull.test[,nonz])
-pred.test <- predict(bb,newdata=hsred2.test)
+pred.test <- bb$test$predicted
 mean((Y.test - pred.test)^2)
+```
+
+## Boosting
+
+* Remember that the number of trees and the shrinkage
+factor are tuning parameters. 
+* To limit computation I'm using 200 trees.
+* I've left the shrinkage at its default value.
+
+\tiny
+
+```{r,cache=TRUE}
+library(gbm)
+hs.train <- data.frame(HUIDHSI=Y.train,X.train)
+hboost <- gbm(HUIDHSI ~ ., data=hs.train,
+              n.trees=200,distribution="gaussian") 
+summary(hboost)
+```
+
+##
+
+\scriptsize
+
+```{r}
+library(gbm)
+hs.test <- data.frame(HUIDHSI=Y.test,X.test)
+pred.test <- predict(hboost,newdata=hs.test, n.trees=200,type="response")
+mean((Y.test-pred.test)^2)
+```
+
+
+## The winner
+
+* Surprisingly, the lasso gave the lowest MSE.
+    + But I didn't use many trees for random forest, and 
+    made no attempt to tune boosting.
+* Fit the winner to all data -- this is my $\hat{f}$ 
+to predict the hold-out test data on Monday.
+
+\tiny
+
+```{r}
+lambdas <- 10^{seq(from=-3,to=5,length=100)}
+cv.lafit <- cv.glmnet(as.matrix(X),Y,alpha=1,lambda=lambdas)
+la.best.lam <- cv.lafit$lambda.1se
+winner <- glmnet(as.matrix(X),Y,alpha=1,lambda=la.best.lam)
+coef(winner)
 ```
