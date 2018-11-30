@@ -1,0 +1,219 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Review Part 3: Predicting Binary HUI'
+author: "Brad McNeney"
+date: '2018-11-26'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+```
+
+## Data
+
+* Rather than analyse the quantitative `HUIDHIS` variable, students could break it into a binary variable that has value 0 if HUIDHIS is less than the median value of 0.905, and 1 otherwise.
+
+* Process the data as before
+
+\tiny
+
+```{r, cache=TRUE}
+hs <- read.csv("../../Project652/HStrain.csv")
+library(dplyr)
+hs <- select(hs,-starts_with("ADM"))
+library(FactoMineR)
+res.mca <- MCA(select(hs,starts_with("CIH")))
+CIHPCs <- res.mca$ind$coord[,1:4] # first 4 explain 50%
+colnames(CIHPCs) <- paste("CIH",colnames(CIHPCs))
+hsred <- select(hs,
+          ADLDCLS,ALCDTTM,CAGDFAP,CCCF1,CCCDCPD,
+          CR1FRHC,CR2DTHC,CR2DFAR,DPSDSF,EDUDR04,
+          FALG02,GENDHDI,GENDMHI,HC2FCOP,
+          HUIDHSI, # response
+          HUPDPAD,HWTGBMI,IN2GHH,LONDSCR,MEDF1,
+          NURDHNR,PA2DSCR,SLP_02,SLSDCLS,
+          SMKDSTY,SPAFPAR,starts_with("SSAD"))
+hsred <- data.frame(hsred,CIHPCs)
+tem <- model.matrix(HUIDHSI ~ .,data=hsred)[,-1]
+X <- as.data.frame(scale(tem))
+Y <- as.numeric(hsred$HUIDHSI>0.905)
+```
+
+## Training and test sets
+
+\scriptsize
+
+```{r}
+set.seed(123)
+n.train <- 7000
+train <- sample(1:nrow(hs),replace=FALSE,size=n.train)
+X.train <- X[train,]; Y.train <- Y[train]
+X.test <- X[-train,]; Y.test <- Y[-train]
+```
+
+## Logistic regression
+
+* The R function `step()` can be
+used for stepwise model selection, but
+it is quite slow.
+* Instead, we'll just fit a big logistic
+regression model and examine the coefficients.
+
+\scriptsize
+
+```{r,cache=TRUE}
+hs.train <- data.frame(Y=Y.train,X.train)
+lr <- glm(Y~.,data=hs.train,family="binomial")
+round(summary(lr)$coef,4) # General health variables most important
+```
+
+## Predictions
+
+* Use the fitted model to make predictions on the "response" scale
+and then classify as "1" if greater than a threshold.
+* Could explort different thresholds and calculate true- and false-positive
+rates, or AUC.
+    + I'll just use a threshold of 0.5
+
+\scriptsize
+
+```{r}
+hs.test <- data.frame(Y=Y.test,X.test)
+pred.test <- predict(lr,newdata=hs.test,type="response")
+pred.test <- as.numeric(pred.test > 0.5) 
+mean(pred.test != Y.test)
+```
+
+
+
+## Lasso
+
+\scriptsize
+
+```{r}
+library(glmnet)
+lambdas <- 10^{seq(from=-3,to=5,length=100)}
+cv.lafit <- cv.glmnet(as.matrix(X.train),Y.train,
+                      family="binomial",alpha=1,lambda=lambdas)
+```
+
+##
+
+\scriptsize
+
+```{r}
+plot(cv.lafit)
+la.best.lam <- cv.lafit$lambda.1se
+```
+
+## Lasso coefficients
+
+\tiny
+
+```{r}
+ll <- glmnet(as.matrix(X.train),Y.train,alpha=1,lambda=la.best.lam)
+coef(ll) # General health, pain levels, sleep, satisfaction with life variables important
+```
+
+##
+
+\scriptsize
+
+```{r}
+pred.test <- predict(ll,as.matrix(X.test),type="response")
+pred.test <- as.numeric(pred.test > 0.5)
+mean((Y.test-pred.test)^2)
+```
+
+## Random Forest 
+
+* The response should be a factor to build
+classification trees.
+
+\scriptsize
+
+```{r,cache=TRUE}
+library(randomForest)
+set.seed(1)
+Y.tr.fact <- as.factor(Y.train); Y.te.fact <- as.factor(Y.test)
+bb <- randomForest(X.train,y=Y.tr.fact,xtest=X.test,
+          ytest=Y.te.fact,ntree=200,
+          mtry=sqrt(ncol(X.train)),importance=TRUE)
+varImpPlot(bb,type=1) 
+```
+
+##
+
+\scriptsize
+
+```{r}
+pred.test <- bb$test$predicted
+mean((Y.te.fact != pred.test))
+```
+
+## Boosting
+
+* I thought a factor response would 
+cause `gbm` to build classification trees,
+but I'm getting errors (`NaN` predictions).
+* Instead, revert to 0/1 `Y`.
+
+\tiny
+
+```{r,cache=TRUE}
+library(gbm)
+hs.train <- data.frame(Y=Y.train,X.train)
+hboost <- gbm(Y ~ ., data=hs.train,interaction.depth=2,
+              n.trees=500,distribution="bernoulli") 
+summary(hboost)
+```
+
+##
+
+\scriptsize
+
+```{r}
+library(gbm)
+hs.test <- data.frame(HUIDHSI=Y.test,X.test)
+pred.test <- predict(hboost,newdata=hs.test, n.trees=200,type="response")
+pred.test <- as.numeric(pred.test > 0.5)
+mean((Y.test!=pred.test))
+```
+
+
+## SVM
+
+* We discussed several kernels. 
+* I'll use radial without any tuning.
+    + Computation: with $n=7000$, the
+    pairwise distance matrix is $7000\times 7000$.
+    + Recall `tune()` function if you want to tune.
+
+```{r,cache=TRUE}
+library(e1071)
+set.seed(123)
+ss <- svm(Y~.,data=hs.train,type="C-classification",
+          cost=1,kernel="radial",gamma=1)
+preds <- predict(ss,newdata=hs.test) 
+mean(preds != Y.test)
+```
+
+
+## The winner
+
+* The winner is boosting with interaction depth 2.
+* Fit the winner to all data -- this is my $\hat{f}$ 
+to predict the hold-out test data on Monday.
+
+\scriptsize
+
+```{r}
+hs <- data.frame(HUIDHSI=Y,X)
+winner <- gbm(HUIDHSI ~ ., data=hs,
+              n.trees=200,interaction.depth=2,
+              distribution="bernoulli") 
+```

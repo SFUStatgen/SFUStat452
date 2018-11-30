@@ -297,10 +297,15 @@ mean((Y.test - pred.test)^2)
 
 ## Boosting
 
-* Remember that the number of trees and the shrinkage
+* Can specify interaction depth; I tried 1 and 2,
+with 2 performing better.
+* The number of trees and the shrinkage
 factor are tuning parameters. 
-* To limit computation I'm using 200 trees.
-* I've left the shrinkage at its default value.
+    + To limit computation I'm using 200 trees.
+    + I've left the shrinkage at its default value.
+    + I am told that the `caret` R package has
+    useful tools for tuning boosting, but
+    I've never tried it myself.
 
 \tiny
 
@@ -308,7 +313,8 @@ factor are tuning parameters.
 library(gbm)
 hs.train <- data.frame(HUIDHSI=Y.train,X.train)
 hboost <- gbm(HUIDHSI ~ ., data=hs.train,
-              n.trees=200,distribution="gaussian") 
+              n.trees=200,interaction.depth=2,
+              distribution="gaussian") 
 summary(hboost)
 ```
 
@@ -326,18 +332,17 @@ mean((Y.test-pred.test)^2)
 
 ## The winner
 
-* Surprisingly, the lasso gave the lowest MSE.
-    + But I didn't use many trees for random forest, and 
-    made no attempt to tune boosting.
+* Boosting with interaction depth 2 gave the lowest MSE.
+    + I didn't use many trees for random forest, and 
+    made almost no attempt to tune boosting.
 * Fit the winner to all data -- this is my $\hat{f}$ 
 to predict the hold-out test data on Monday.
 
-\tiny
+\scriptsize
 
 ```{r}
-lambdas <- 10^{seq(from=-3,to=5,length=100)}
-cv.lafit <- cv.glmnet(as.matrix(X),Y,alpha=1,lambda=lambdas)
-la.best.lam <- cv.lafit$lambda.1se
-winner <- glmnet(as.matrix(X),Y,alpha=1,lambda=la.best.lam)
-coef(winner)
+hs <- data.frame(HUIDHSI=Y,X)
+winner <- gbm(HUIDHSI ~ ., data=hs,
+              n.trees=200,interaction.depth=2,
+              distribution="gaussian") 
 ```
