@@ -2,7 +2,6 @@
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 1: Introduction'
 author: "Brad Mcneney"
-date: '2018-09-01'
 output: 
   beamer_presentation:
     includes:
@@ -94,7 +93,7 @@ is denoted $x_{ij}$
 
 ## More Notation and Simple Matrix Algebra
 
-* Dongmeng will discuss in tutorial for those who need a refresher
+* TA will discuss in tutorial (tutorials start in week 2) for those who need a refresher
 or quick intro.
 
 ## R and RStudio
@@ -104,7 +103,7 @@ or quick intro.
 based on the class GitHub repository.
     + See the computer software "getting started" page on
     canvas.
-    + Dongmeng to discuss in tutorial.
+    + TA to discuss in tutorial (tutorials start week 2).
 * Also be sure to 
 install the `tidyverse` and
 `ISLR` packages using the RStudio `Tools` menu, or
