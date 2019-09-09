@@ -2,7 +2,6 @@
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 2: Statistical Learning'
 author: "Brad McNeney"
-date: '2018-09-01'
 output: 
   beamer_presentation:
     includes:
@@ -25,7 +24,7 @@ in thousands of dollars for TV, radio and newspaper for
 \scriptsize
 
 ```{r}
-uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Advertising.csv")
+uu <- url("http://faculty.marshall.usc.edu/gareth-james/ISL/Advertising.csv")
 advert <- read.csv(uu,row.names=1)
 head(advert)
 ```
@@ -81,7 +80,7 @@ where
 \scriptsize
 
 ```{r}
-uu <- url("http://www-bcf.usc.edu/~gareth/ISL/Income1.csv")
+uu <- url("http://faculty.marshall.usc.edu/gareth-james/ISL/Income1.csv")
 income <- read.csv(uu,row.names=1)
 head(income)
 ```
@@ -158,7 +157,7 @@ what's inside?
     + non-parametric
 
 * In either case, we will use **training data** to 
-train our method how to estimate $f$.
+train our method to estimate $f$.
 * Notation: Let $x_i = (x_{i1},\ldots,x_{ip})$ denote the 
 observed predictors
 and $y_i$ the response for the $i$th of $n$ independent observations.
@@ -230,7 +229,7 @@ ifit<- lm(Income ~ Education + I(Education^2) + I(Education^3), data=income)
     
 ## Non-parametric Methods
 
-* An model-free specification of the functional form 
+* A model-free specification of the functional form 
 of $f$.
 * Avoid over-fitting by limiting the roughness, or wigglyness 
 of the fitted curve. 
@@ -274,8 +273,6 @@ the trade-off between prediction accuracy and model interpretability.
 \begin{center}
 \includegraphics[height=2.5in]{Fig2_7.pdf}
 \end{center}
-
-\vspace*{-.5in}
 
 * The more flexible the model, the more accurate the predictions, but
 the less interpretable the model.
@@ -351,7 +348,7 @@ reflects how well $\hat{f}$ predicts new observations.
 
 * Text, simulated data example, Figure 2.9
 
-\vspace*{-.5in}
+\vspace*{-.1in}
     
 \begin{center}
 \includegraphics[height=2.0in]{Fig2_9.pdf}
