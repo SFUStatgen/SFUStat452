@@ -14,6 +14,9 @@ of different complexity.
 
 ## Test error 
 
+* Understand the code in the following code chunk and run it.
+
+
 ```{r}
 # parameters of the distribution of X
 Xmin <- 10; Xmax <- 22
@@ -61,7 +64,8 @@ and plot the results.
 either an average of conditional expected test errors, $Err(x_0)$
 over the distribution of $X$, or the average of the test errors. 
 
-* **Exercise** Run the following code. What do you notice about the 
+* **Exercise** Understand the code in the following
+code chunk and run it. What do you notice about the 
 behaviour of the expected test error compared to the test error.
 (Hint: What was odd about the test error for polynomial degree 6?)
 
