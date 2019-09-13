@@ -334,7 +334,7 @@ from the training data (the training MSE in equation 1).
 * Instead we are interested in the accuracy of the prediction of 
 new data, called test data.
 If the training observations $\{ (x_1,y_1),\ldots, (x_n,y_n) \}$
-are used to produce $\hat{f}$, and we had a large number of 
+are used to produce $\hat{f}$, and we had an infinite number of 
 test observations $(x_0,y_0)$, the test MSE
 $$
 Ave((y_0 - \hat{f}(x_0))^2)
@@ -367,24 +367,35 @@ and the red is the test MSE.
 
 ## Bias-Variance Tradeoff
 
-* For fixed $x_0$ and $y_0$, 
-the expected test MSE $E(y_0 - \hat{f}(x_0))^2$, obtained
-by averaging over repeated estimations of $f$,
-can be decomposed as 
-$$E(y_0 - \hat{f}(x_0))^2 = Var(\hat{f}(x_0)) +  [Bias(\hat{f}(x_0))]^2 +
-Var(\epsilon)$$
-where 
-    + $Var(\hat{f}(x_0))$ is the variance (spread) of the predictions,
-    + $Bias(\hat{f}(x_0))$ is the bias (systematic departure from truth)
-    of the predictions, and
-    + $Var(\epsilon)$ is the irreducible error term that is beyond our
-    control
+* The "U"-shaped test MSE curve reflects the bias-variance trade-off. 
+* We can argue that test MSE is composed of three quantities: (i) 
+the variance of $\hat{f}$, (ii) the square of the bias of $\hat{f}$ and 
+the irreducible error. 
+* Nothing we can do about irreducible error.
 * Generally, the more flexible the method for estimating $f$ the
 higher the variance and the lower the bias. 
     + Initially as we increase flexibility, the variance increase
     is offset by a decrease in bias, and the test MSE decreases.
     + At some point though the variance increase exceeds the decrease 
     in bias and the expected test MSE increases.
+
+## Bias-Variance Decomposition
+
+* For fixed $x_0$
+the expected test MSE, $Err(x_0) = E[(Y - \hat{f}(x_0))^2|X=x_0]$ is obtained
+by averaging the squared error over repeated training data (to estimate $f$) and 
+test $Y$'s. Can decompose as
+$$Err(x_0) =
+Var(\hat{f}(x_0)) +  [Bias(\hat{f}(x_0))]^2 + Var(\epsilon)$$
+where 
+    + $Var(\hat{f}(x_0))$ is the variance (spread) of the predictions,
+    + $Bias(\hat{f}(x_0))$ is the bias (systematic departure from truth)
+    of the predictions, and
+    + $Var(\epsilon)$ is the irreducible error term that is beyond our
+    control
+
+* The expected MSE $Err$ is obtained by averaging $Err(x_0)$ over the
+distribution of $X$.
 
 ## Quality of Fit in Classification
 
