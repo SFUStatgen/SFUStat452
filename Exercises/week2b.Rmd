@@ -1,0 +1,89 @@
+---
+title: "Week 2, Part b Exercises"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+* In these exercises we illustrate the bias-variance tradeoff 
+by calculating the test error and expected test error for models
+of different complexity.
+
+## Test error 
+
+```{r}
+# parameters of the distribution of X
+Xmin <- 10; Xmax <- 22
+# paramters of the distribution of Y given X
+beta0 <- 345; beta1 <- -72; beta2 <- 5; beta3 <- -.1; sd <- 4
+# training and test set sample sizes
+ntrain <- 30; ntest <- 10000 # not usually this large
+# True f
+f <- function(x) {
+  return(beta0 + beta1*x + beta2*x^2 + beta3*x^3) # works if x is a vector
+}
+# data simulator
+simdat <- function(n) { 
+  x <- runif(n,min=Xmin,max=Xmax)
+  y <- f(x) + rnorm(n,mean=0,sd=sd)
+  return(data.frame(x=x,y=y))
+}
+set.seed(123)
+traindat <- simdat(ntrain)
+testdat <- simdat(ntest)
+
+# Function to fit a polynomial model of a given degree on training data 
+# and estimate the test error of this fitted model for a given test set.
+testerr <- function(traindat,testdat,poly_degree) {
+  fit <- lm(y~poly(x,poly_degree),data=traindat)
+  fhat <- predict(fit,newdata=testdat)
+  return( mean((testdat$y - fhat)^2) )
+}
+
+# Test error at x0=10 for different polynomial degrees
+testerr(traindat,testdat,poly_degree=1)
+testerr(traindat,testdat,poly_degree=2)
+testerr(traindat,testdat,poly_degree=3)
+testerr(traindat,testdat,poly_degree=4)
+testerr(traindat,testdat,poly_degree=5)
+testerr(traindat,testdat,poly_degree=6)
+```
+
+* **Exercise** Fit the model with best test error to the training data
+and plot the results.
+
+## Expected test error
+
+* In the revised lecture slides, the expected test error was described as
+either an average of conditional expected test errors, $Err(x_0)$
+over the distribution of $X$, or the average of the test errors. 
+
+* **Exercise** Run the following code. What do you notice about the 
+behaviour of the expected test error compared to the test error.
+(Hint: What was odd about the test error for polynomial degree 6?)
+
+```{r}
+# A version of testerr that takes only the polynomial degree as an argument
+testerr2 <- function(poly_degree){
+  traindat <- simdat(ntrain)
+  testdat <- simdat(ntest)
+  return(testerr(traindat,testdat,poly_degree))
+}
+
+exptesterr <- function(poly_degree,NREPS = 1000) {
+  tes <- replicate(NREPS, testerr2(poly_degree) )
+  return(mean(tes))
+}
+
+set.seed(123)
+exptesterr(1)
+exptesterr(2)
+exptesterr(3)
+exptesterr(4)
+exptesterr(5)
+exptesterr(6)
+```
+

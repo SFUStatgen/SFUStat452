@@ -368,7 +368,7 @@ and the red is the test MSE.
 ## Bias-Variance Tradeoff
 
 * The "U"-shaped test MSE curve reflects the bias-variance trade-off. 
-* We can argue that test MSE is composed of three quantities: (i) 
+* We can argue that test MSE is composed of three quantities (next slide): (i) 
 the variance of $\hat{f}$, (ii) the square of the bias of $\hat{f}$ and 
 the irreducible error. 
 * Nothing we can do about irreducible error.
@@ -395,7 +395,8 @@ where
     control
 
 * The expected MSE $Err$ is obtained by averaging $Err(x_0)$ over the
-distribution of $X$.
+distribution of $X$. Equivalently, $Err$ is the average of 
+the test errors over training datasets. (Order of averaging doesn't matter.)
 
 ## Quality of Fit in Classification
 
