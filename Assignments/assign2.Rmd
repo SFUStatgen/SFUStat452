@@ -1,0 +1,19 @@
+---
+title: "Assignment 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+On Thursday Sept. 26 in class you will do a
+canvas quiz based on the following questions from the 
+text book.
+
+## Chapter 2, #9
+
+## Chapter 3, #3
+
+## Chapter 3, #9
+

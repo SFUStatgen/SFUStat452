@@ -237,6 +237,8 @@ simCI <- function() {
 simCI() # Does it contain true value beta1 = 1?
 # Exercise: Write code to repeat NREPS times and count 
 # how many intervals include beta1.
+simout <- replicate(NREPS,simCI())
+sum(simout[1,]<= beta1 & simout[2,] >= beta1)
 ```
 
 ## Advertising Example
@@ -347,4 +349,5 @@ ggplot(advertDiag,aes(x=fitted,y=residuals)) +
 
 * Some evidence of non-linearity on LHS of plot.
 * Funnel from left to right.
-* Consequences?
+* Consequences? Tendency to underestimate SE, which 
+makes t-statistic too big and p-values too small.
