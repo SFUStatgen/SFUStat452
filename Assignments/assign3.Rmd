@@ -1,0 +1,72 @@
+---
+title: "Assignment 3"
+author: "Name 1, Name 2, Name 3"
+date: "2019-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+
+Fill in your computations and answers to the assignment questions in this
+RMarkdown document. When you are finished, click the "Knit" button on RStudio
+to render an HTML document. You can then use your browser or tool of choice
+to convert the HTML document to a PDF file.
+
+This assignment is to be handed in through canvas on Monday Oct 7 at 11:00pm.
+(Note that this due date is different from the due date given on the canvas
+Admin page.) This is a group assignment.
+You must join a group on canvas even if you want to work alone. Please upload one PDF file
+with your solutions per group. 
+
+## Question 1 (Chapter 3, #15)
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+
+## Question 2 (Chapter 4, #4)
+
+(a)
+
+(b) 
+
+(c)
+
+(d) 
+
+(e)
+
+
+## Question 3 (Chapter 4, #10 parts (a)-(h), 9 marks)
+
+```{r}
+library(ISLR)
+data(Weekly)
+head(Weekly)
+```
+
+
+(a)
+
+(b) 
+
+(c)
+
+(d) 
+
+(e) 
+
+(f) 
+
+(g) 
+
+(h)  
