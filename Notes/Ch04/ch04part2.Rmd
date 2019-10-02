@@ -405,7 +405,7 @@ auc(ROCres)
 then it can be shown that the Bayes classifier 
 assigns an observation with $X=x$ to the class with 
 the largest 
-$$\delta_k(x) = -\frac{1}{2}\frac{(x-\mu_k)^2}{\sigma^2} - \frac{1}{2} \log \sigma_k^2 + \log \pi_k,$$
+$$\delta_k(x) = -\frac{1}{2}\frac{(x-\mu_k)^2}{\sigma_k^2} - \frac{1}{2} \log \sigma_k^2 + \log \pi_k,$$
 which is a quadtratic function of $x$.
 * See the text, page 149, for the 
 multivariate version.
