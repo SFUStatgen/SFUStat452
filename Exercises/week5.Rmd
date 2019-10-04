@@ -1,0 +1,98 @@
+---
+title: "Week 5 Exercises"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE)
+library(ggplot2);library(dplyr)
+```
+
+We will do model selection where 
+we estimate the test error of the best model
+of each size by cross-validation.
+The data for this exercise is the `Credit` data.
+
+```{r}
+uu <- url("http://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv")
+Credit <- read.csv(uu,row.names=1)
+head(Credit,n=3)
+```
+
+
+1. Run the following R code chunk to perform 10-fold cross-validation to 
+estimate the test set error of the model with 
+an intercept and `Rating` as the only predictor.
+
+```{r}
+library(boot)
+nd <- 10; dd <- (1:nd)
+cv.err <- rep(NA,nd)
+set.seed(111)
+for(i in dd) {
+  fit <- glm(Balance ~ poly(Rating,i),data=Credit)
+  cc <- cv.glm(Credit,fit,K=10)
+  cv.err[i] <- cc$delta[1]
+}
+cv.err <- data.frame(degree=dd,CV=cv.err)
+```
+
+2. Plot the CV-based estimates of expected test MSE *versus* polynomial degree. 
+Inspect `cv.err` to find the polynomial degree with smallest estimated
+average test MSE.
+
+3. Fill in the blank of the 
+following R code chunk to fit the final model and plot the fitted curve.
+Comment on your plot.
+
+
+```{r}
+finald <- ___
+finalfit <- lm(Balance ~ poly(Rating,finald),data=Credit)
+ngrid <- 100
+pCredit = data.frame(
+  Rating = seq(from=min(Credit$Rating),to=max(Credit$Rating),length = ngrid))
+pCredit <- mutate(pCredit,
+                   Balance = predict(finalfit,newdata = pCredit))
+ggplot(Credit,aes(x=Rating,y=Balance)) + geom_point() +
+  geom_line(data=pCredit)
+```
+
+4. Run the following R code chunk to create a binary variable
+that takes value 1 for a Balance greater than zero and 
+0 for a balance of zero.
+
+```{r}
+Credit <- mutate(Credit,nonzeroBalance = as.numeric(Credit$Balance > 0))
+```
+
+5. Repeat parts 1-2 of these exercises (10-fold CV) with logistic regression of 
+`nonzeroBalance` on polynomials of `Rating`. 
+In your call to `cv.glm()` you need to specify an appropriate loss (cost) function.
+Use the `missclass.err()` function given below, and call
+`cv.glm()` with `cv.glm(Credit,fit,K=10,cost=misclass.err)`.
+
+```{r}
+misclass.err <- function(y, pi = 0) {
+  yhat <- as.numeric(pi>0.5)
+  return(mean(y != yhat))
+}
+```
+
+Notes:
+
+* `missclass.err()` calculates the misclassification error. 
+* `cv.glm()` expects your loss function
+to have two arguments: (i) the response, and (ii) the fitted value from the GLM.
+* The fitted value from a logistic regression is the probability that the 
+response is one. Convince yourself that
+if `pi` is the predicted probability that $Y=1$, then 
+`as.numeric(pi>0.5)` is the predicted value of $Y$.
+
+
+6. Use the final model to predict
+`nonzeroBalance` and create the confusion matrix
+(i.e., tabulate your results with the true values of `nonzeroBalance`).
+Compare this confusion matrix to the one you obtain using 
+a linear logistic model to predict `nonzeroBalance`.
