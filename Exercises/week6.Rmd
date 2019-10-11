@@ -1,0 +1,89 @@
+---
+title: "Week 6 Exercises"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will do model selection and shrinkage 
+estimation on the Credit dataset discussed
+in class.
+For model selection we perform all subsets regression 
+and use  both $C_p$ and cross validation for selection.
+Read, understand, and execute the following code and then
+answer the questions below.
+
+```{r}
+uu <- url("http://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv")
+Credit <- read.csv(uu,row.names=1)
+Xfull <- model.matrix(Balance ~ ., data=Credit)
+head(Xfull,n=3)
+Y <- Credit$Balance
+# Standardize predictors
+predInds <- 2:ncol(Xfull) # exclude intercept
+Xfull[,predInds] <- scale(Xfull[,predInds]) 
+head(Xfull,n=3)
+# All subsets, with best model selected by Cp
+library(leaps) # contains regsubsets()
+Credit.scaled <- data.frame(Y,Xfull[,-1]) #remove intercept from Xfull
+cfits <- regsubsets(Y ~ ., data=Credit.scaled,nvmax=11)
+cfits.sum <- summary(cfits)
+cp.best <- which.min(cfits.sum$cp)
+coef(cfits,cp.best)
+# All subsets with best model selected by cross-validation
+# Cross-validation is done by the function cv() given below. 
+cv <- function(X,Y,k,seed) {
+  set.seed(seed)
+  folds <- sample(1:k,size=nrow(X),replace=TRUE)
+  validErr <- rep(NA,k)
+  for(i in 1:k) {
+    testY <- Y[folds==i]; trainY <- Y[folds!=i]
+    testX <- X[folds==i,]; trainX <- X[folds!=i,]
+    fit <- lm.fit(trainX,trainY) 
+    testPreds <- testX%*%fit$coefficients
+    validErr[i] <- mean((testPreds - testY)^2)
+  }
+  cvErr <- mean(validErr)
+  cvErr
+}
+k <- 10; seed <- 1; nPred <- 11; cvErrs <- rep(NA,nPred)
+for(i in 1:nPred){
+  X <- Xfull[,cfits.sum$which[i,]]
+  cvErrs[i] <- cv(X,Y,k,seed)
+}
+cvErrs
+cv.best <- which.min(cvErrs)
+coef(cfits,id=cv.best)
+# Lasso
+library(glmnet)
+lambdas <- 10^{seq(from=-2,to=5,length=100)}
+cv.lafit <- cv.glmnet(Xfull,Y,alpha=1,lambda=lambdas) 
+la.best.lam <- cv.lafit$lambda.1se
+la.best <- glmnet(Xfull,Y,alpha=1,lambda=la.best.lam)
+coef(la.best)
+```
+
+1. Which coefficients are selected by all subsets with $C_p$?
+
+2. Which coefficients are selected by all subsets with cross-validation?
+
+3. Which coefficients are selected by lasso?
+
+4. Comment on the estimated coefficients from least
+squares for the best model
+by model selection *versus* the shrinkage estimates
+for the best model from the lasso.
+
+5. Plot the predicted values from the best model by model
+selection *versus* the predicted values from the best lasso model.
+Add a regression line to the plot.
+Comment on the plot.
+(Hint 1: you will have to fit the model selected by 
+model selection yourself with `lm()` to get the predictions.
+Hint 2: `glmnet` objects have a predict method, but you need
+to supply the `newx` argument, even if you are predicting
+the data used to fit the model.)
+
