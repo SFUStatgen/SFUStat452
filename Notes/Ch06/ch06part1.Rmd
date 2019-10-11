@@ -72,7 +72,7 @@ models into two steps:
     (b) Select the best model from
     $\mathcal{M}_0,\ldots,\mathcal{M}_p$ 
     based on estimated test set error.
-* See Algorithm 6.1 in test for a complete algorithm.
+* See Algorithm 6.1 in text for a complete algorithm.
 
 ## Drawback of All Subsets
 
