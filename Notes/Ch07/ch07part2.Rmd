@@ -84,14 +84,16 @@ ggplot(Xlong,aes(x=age,y=b,color=basisFun)) + geom_line()
 ## Piecewise Polynomials
 
 * Instead of constants between the cut-points, we can use
-polynomials.
-    + Start with cubic polynomials.
-* Then impose constraints on the polynomials
-that guarantee a smooth function whenever we take a 
-linear combination (more on this later).
-    + With these constraints, it turns out that
-    $K$ interior knots leads to $K+3$ basis functions.
-    + For later: $K+4$ coefficients, or degrees of freedom (df).
+cubic polynomials, constrained so that the resulting function
+is continuous at all knots, with continuous first and second 
+derivative.
+* There are several bases for such functions.
+    * A basis is a set of "axes" that can be combined to 
+    make any function.
+* Text (page 273) uses the truncated power basis. 
+    + They show that $K$ interior knots leads to $K+3$ basis functions,
+    so $K+4$ coefficients, or degrees of freedom (df).
+* An alternative basis is the B-spline basis.
 
 \scriptsize
 
