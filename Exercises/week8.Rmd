@@ -1,0 +1,87 @@
+---
+title: "Week 8 Exercises"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In the file `week8Util.R` are two R functions 
+based on the Chapter 7 notes. We will use
+the `Boston` data set from the `MASS` package.
+
+```{r}
+source("week8Util.R")
+library(MASS)
+data(Boston)
+```
+
+
+1. Read and understand the code of the function
+`cv.lm()` in the `week8Util.R` source file.
+This is a generalization 
+of the `cv()` function used in the ch07part2 notes (page 16)
+to perform cross-validation for a least-squares regression.
+Cut-and-paste the following code to test out `cv.lm()`.
+
+```{r}
+library(ISLR)
+data(Wage)
+library(splines)
+k<-10; nDf <- 10; seed <- 1; cvErrs <- rep(NA,nDf) 
+for(df in 1:nDf){ # loop over df
+  cvErrs[df] <- cv.lm(wage ~ ns(age,df),Wage,k,seed)$meanErr
+}
+# The following should look like the plot on p. 17 of ch07part2.pdf
+plot(1:nDf,cvErrs,type="b",ylab="MSE",xlab="DF for natural spline") 
+```
+
+2. Read and understand the following code that 
+loops over df, computes the CV estimate and 
+its standard error, and plots the results.
+The functions `plot.cv.lm()` and `plotfit()` are in the 
+`week8Util.R` source file.
+
+```{r}
+cvDat <- matrix(NA,nrow=nDf,ncol=4)
+for(df in 1:nDf) {
+  res <- cv.lm(wage ~ ns(age,df),Wage,k,seed)
+  merr <- res$meanErr; serr <- res$sdErr
+  cvDat[df,] <- c(df,merr,merr-serr,merr+serr)
+}
+colnames(cvDat) <- c("df","meanErr","lwr","upr")
+#
+# Plot the results with 1-SE error bands
+#
+library(ggplot2)
+dfs <- plot.cv.lm(cvDat)
+#
+# Fit the best model and plot, with error bands. Use
+# the plotfit() function from the chapter 7 notes.
+#
+fit <- lm(wage ~ ns(age,dfs$df.1se),data=Wage)
+newdat <- data.frame(age=seq(from=min(Wage$age),to=max(Wage$age),length=100))
+plotfitWage(fit,Wage,newdat)
+```
+
+3. Load the `Boston` data set, use the variable `dis`
+(weighted mean of distances to five Boston employment centres) 
+as a response 
+and `nox` (nitrogen oxides concentration, in ppm) as
+a predictor
+in the following questions.
+    (a) Use `poly()` to fit polynomials of degree
+    1 to 10. Select the degree by cross-validation 
+    using the 1-SE rule. (You will probably want to 
+    modify the code in part 2 for this.)
+    Plot the fitted model for
+    the selected degree.
+    (b) Repeat (a) using `ns()` to fit natural cubic splines with
+    df 1 to 10. 
+    (c) Fit a smoothing spline to these data and 
+    plot the fitted model with the optimal df.
+    (d) Comment on the differences between the fit of the
+    selected models in (a)-(c)
+    
