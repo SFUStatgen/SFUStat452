@@ -1,0 +1,150 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Chapter 8, Part 4: Regression Trees Lab'
+author: "Brad McNeney"
+date: '2018-11-02'
+output: 
+  beamer_presentation:
+    includes:
+      in_header: ../header_pagenum.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.width=5)
+```
+
+## Boston Data
+
+* Recall the `Boston` dataset in which the response is
+the median house price in \$1000 and and there are 13 predictors.
+* As on the midterm, I've replaced the variable `black` by
+`predAA`,
+an indicator that takes value 1 if the town is
+predominantly African American and 0 otherwise.
+
+\scriptsize
+
+```{r,echo=FALSE}
+library(MASS)
+library(dplyr)
+data(Boston)
+Boston <- Boston %>% 
+  mutate(predAA = as.numeric(black < 169)) %>%
+  select(-black)
+```
+
+## Training and Test Data
+
+* Split the data in half for training and testing. 
+
+\scriptsize
+
+```{r}
+set.seed(1)
+train <- sample(1:nrow(Boston),nrow(Boston)/2)
+```
+
+## Regression Tree
+
+\scriptsize
+
+```{r}
+library(tree)
+tt <- tree(medv ~ ., data=Boston, subset=train)
+plot(tt) # only rm, lsat, tax and dis used
+text(tt)
+```
+
+## Cross-Validation to Prune Tree
+
+\scriptsize
+
+```{r}
+cvt <- cv.tree(tt)
+plot(cvt) # No pruning required -- could use size 5 
+          # based on parsimony
+```
+
+## Test Set Error
+
+* Use the unpruned tree
+\scriptsize
+
+```{r}
+yhat <- predict(tt,newdata=Boston[-train,])
+y <- Boston[-train,"medv"]
+mean((y-yhat)^2)
+```
+
+## Bagging 
+
+\scriptsize
+
+```{r}
+library(randomForest)
+set.seed(1) # for bootstrapping
+btt <- randomForest(medv ~ ., data=Boston,subset=train,
+                    mtry=13) # mtry=p for bagging
+yhat <- predict(btt,newdata=Boston[-train,])
+mean((y-yhat)^2)
+```
+
+## Random Forest 
+
+\scriptsize
+
+```{r}
+set.seed(1) # for bootstrapping
+rtt <- randomForest(medv ~ ., data=Boston,subset=train,
+                    mtry=sqrt(13),importance=TRUE) 
+yhat <- predict(rtt,newdata=Boston[-train,])
+mean((y-yhat)^2)
+importance(rtt)
+```
+
+## Boosting
+
+\scriptsize
+
+```{r}
+library(gbm)
+bott <- gbm(medv ~ ., data=Boston[train,],
+                    distribution="gaussian",n.trees=1000) #M
+yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
+mean((y-yhat)^2)
+```
+
+## Boosting with Greater Interaction Depth
+
+\scriptsize
+
+```{r}
+bott <- gbm(medv ~ ., data=Boston[train,], interaction.depth=4,
+                    distribution="gaussian",n.trees=1000)
+yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
+mean((y-yhat)^2)
+```
+
+## Boosting with Less Shrinkage
+
+\scriptsize
+
+```{r}
+bott <- gbm(medv ~ ., data=Boston[train,], interaction.depth=4,
+            shrinkage=0.001, # decrease from default 0.1
+            distribution="gaussian",n.trees=1000)
+yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
+mean((y-yhat)^2)
+```
+
+## Using the Test Set for Tuning
+
+* Note: Using the test set to tune the boosting algorithm does
+not lead to valid test set estimates.
+    * We are essentially fitting the test data.
+* If we require a test set for tuning, it should not be
+the one we use to evaluate the tuned algorithm.
+    * We should split the data into three parts: (i) training
+    (can be the largest part), (ii) tuning test set, 
+    and (iii) test set.
+
