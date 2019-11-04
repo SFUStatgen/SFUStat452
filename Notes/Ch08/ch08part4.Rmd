@@ -2,7 +2,6 @@
 title: 'Statistics 452: Statistical Learning and Prediction'
 subtitle: 'Chapter 8, Part 4: Regression Trees Lab'
 author: "Brad McNeney"
-date: '2018-11-02'
 output: 
   beamer_presentation:
     includes:
@@ -17,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.height=3,fig.w
 
 * Recall the `Boston` dataset in which the response is
 the median house price in \$1000 and and there are 13 predictors.
-* As on the midterm, I've replaced the variable `black` by
+* I've replaced the variable `black` by
 `predAA`,
 an indicator that takes value 1 if the town is
 predominantly African American and 0 otherwise.
@@ -61,8 +60,7 @@ text(tt)
 
 ```{r}
 cvt <- cv.tree(tt)
-plot(cvt) # No pruning required -- could use size 5 
-          # based on parsimony
+plot(cvt) # No pruning required -- could use size 5 for parsimony
 ```
 
 ## Test Set Error
