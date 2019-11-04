@@ -1,0 +1,37 @@
+---
+title: "Assignment 5"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+There will be a canvas quiz on this material in class 
+on November 15.
+
+## Question 1 (Chapter 8, #11)
+
+
+(a) 
+
+
+(b) 
+
+
+(c)
+
+
+## Question 2 (Ch9, #7)
+
+(a) 
+
+
+(b) 
+
+(c) 
+
+
+(d) 
+
