@@ -137,8 +137,11 @@ mean((y-yhat)^2)
 
 ## Using the Test Set for Tuning
 
-* Note: Using the test set to tune the boosting algorithm does
-not lead to valid test set estimates.
+* Note: If we use boosting with all of `gbm()`'s 
+"factory settings", we beat the other approaches.
+* However, if we plan to tune the boosting algorithm
+(shrinkage, interaction depth) we can't use the 
+test set in this way.
     * We are essentially fitting the test data.
 * If we require a test set for tuning, it should not be
 the one we use to evaluate the tuned algorithm.
