@@ -123,16 +123,24 @@ yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
 mean((y-yhat)^2)
 ```
 
-## Boosting with Less Shrinkage
+## Boosting with Smaller $\lambda$
 
 \scriptsize
 
-```{r}
-bott <- gbm(medv ~ ., data=Boston[train,], interaction.depth=4,
+```{r,eval=FALSE}
+bott.cv <- gbm(medv ~ ., data=Boston[train,],
             shrinkage=0.001, # decrease from default 0.1
-            distribution="gaussian",n.trees=1000)
-yhat <- predict(bott,newdata=Boston[-train,],n.trees=1000)
-mean((y-yhat)^2)
+            distribution="gaussian",n.trees=100000,
+            cv.folds=5)
+gbm.perf(bott.cv,method="cv") # 97,736 trees !
+yhat <- predict(bott,newdata=Boston[-train,],n.trees=100000)
+mean((y-yhat)^2) # 85.1 -- overfit
+
+bott <- gbm(medv ~ ., data=Boston[train,],
+            shrinkage=0.001,
+            distribution="gaussian",n.trees=10000)
+yhat <- predict(bott,newdata=Boston[-train,],n.trees=10000)
+mean((y-yhat)^2) # 22.2 -- still not great
 ```
 
 ## Using the Test Set for Tuning

@@ -186,6 +186,20 @@ take $f_m(x) = f_{m-1}(x) + \lambda T(x;\gamma_m)$.
 \includegraphics[height=4in]{ESL_Fig10_11.pdf}
 \end{center}
 
+## Shrinkage in `gbm`
+
+* The author of `gbm` recommends (see the package vignette, `utils::browseVignettes("gbm")`) taking the shrinkage 
+parameter as small as possible.
+* The limiting factor is computation, with a small 
+shrinkage factor $\lambda$ (slow learning)
+requiring more trees.
+* A function `gbm.perf()` can be used to estimate the 
+optimal (adequate?) number of trees for a given 
+shrinkage value. 
+* There are three methods available for selecting
+$M$ (see the vignette). In the 
+illustration below we use the recommended
+CV approach.
 
 ## Example: Heart Data
 
@@ -230,15 +244,23 @@ tt
 sum(tt[row(tt) != col(tt)])/sum(tt)
 ```
 
-## Change Shrinkage
+
+## Change Shrinkage 
+
+* Fit with smaller $\lambda$. Would like
+to use CV to select an appropriate number
+of trees, but this is not working with the 
+Heart data. Instead just use 10000 trees.
 
 \scriptsize
 
-```{r}
+```{r,cache=TRUE}
+
 hboost <- gbm(I(AHD=="Yes") ~ ., data=Heart[train,],
-              n.trees=5000,distribution="bernoulli",shrinkage=.2)
+              n.trees=10000,distribution="bernoulli",
+              shrinkage=.001)
 boo.hpred <- predict(hboost,newdata=Heart[-train,],
-                     n.trees=5000,type="response")
+                     n.trees=10000,type="response")
 boo.hpred <- (boo.hpred>0.5)
 tt <- table(boo.hpred,Heart[-train,]$AHD)
 tt
