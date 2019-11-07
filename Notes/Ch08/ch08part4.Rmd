@@ -50,7 +50,7 @@ train <- sample(1:nrow(Boston),nrow(Boston)/2)
 ```{r}
 library(tree)
 tt <- tree(medv ~ ., data=Boston, subset=train)
-plot(tt) # only rm, lsat, tax and dis used
+plot(tt) # rm, lsat, crim and age used
 text(tt)
 ```
 
