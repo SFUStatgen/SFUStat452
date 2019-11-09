@@ -1,0 +1,86 @@
+---
+title: "Week 10 Exercises"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We will use the `Wage` data set, split into training and 
+test sets.
+
+```{r}
+library(ISLR)
+library(dplyr)
+data(Wage)
+Wage <- Wage %>% select(-logwage,-region)
+dim(Wage) # Train on 2/3, test on 1/3
+set.seed(1)
+train <- sample(1:nrow(Wage),size=2*nrow(Wage)/3,replace=FALSE)
+```
+
+
+### 1. Prediction with `gam()`
+
+Fit a `gam()` model for the response `wage` as a function
+of the quantitative variables `age` and `year` and 
+the categorical variables `maritl`, `race`, `education`, `jobclass`, `health` and `health_ins`. In your model, 
+specify a degree 4 smoothing spline for `age`, but
+a linear model in `year`.
+Print out the model summary to confirm that all effects
+are significant.
+Calculate the test MSE of this model using
+the hold-out data.
+
+
+
+### 2. Prediction with random forests
+
+Use all available variables to construct a random forest
+predictor of `wage`. Use the rule-of-thumb $\sqrt{p}$
+for the number of predictors to use at each split.
+Calculate the test MSE of this model using
+the hold-out data.
+
+
+## 3. Prediction with gradient boosting.
+
+Use all available variables to construct a gradient-boosted
+predictor of `wage`. Use $\lambda=0.01$ and 5000 trees.
+Calculate the test MSE of this model using
+the hold-out data.
+
+
+## 4. Boosted regression 
+
+The following R code implements a gradient boosted
+regression approach. We build up a prediction model
+by regressing a random predictor on the residuals
+from previous fits. Shrinkage is used to 
+slow down the learning. Read and understand
+the following code
+and apply it to the Wage data. Use $\lambda = 0.01$ 
+and 5000 regressions (`n.fits`).
+
+```{r}
+myboost <- function(shrinkage,n.fits) {
+    # Initial model: just an intercept
+    pred <- mean(Wage[train,"wage"])
+    Y <- Wage[train,"wage"] - pred # residual from initial fit
+    # Repeatedly fit models to residuals. 
+    for(tt in 1:n.fits) {
+       Xsam <- sample(1:8,size=1)
+       X <- Wage[train,Xsam]
+       fit <- lm(Y~X)
+       # Get prediction for test data
+       newdat <- data.frame(X=Wage[-train,Xsam])
+       pred <- pred + shrinkage * predict(fit,newdata=newdat)
+       Y <- Y - shrinkage*predict(fit)
+    }
+    pred
+}
+
+# Call with yhat <- myboost(shrinkage,n.fits)
+```
