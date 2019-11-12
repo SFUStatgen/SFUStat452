@@ -307,10 +307,9 @@ including MCA.
 
 ```{r,cache=TRUE}
 library(FactoMineR)
-h <- sample_n(hui,size=1000) 
-hHUI <- select(h,HUIDCOG,HUIGDEX,HUIDEMO,HUIGHER,HUIGMOB,
+hHUI <- select(hui,HUIDCOG,HUIGDEX,HUIDEMO,HUIGHER,HUIGMOB,
                HUIGSPE,HUIGVIS)
-res.mca <- MCA(hHUI,row.w = h$WTS_M)
+res.mca <- MCA(hHUI,row.w = hui$WTS_M)
 ```
 
 [SHOW IN RSTUDIO]
