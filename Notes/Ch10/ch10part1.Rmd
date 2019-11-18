@@ -221,7 +221,7 @@ Survey - Healthy Aging
 
 ```{r}
 library(tidyverse)
-hui <- read.csv("HUI.csv.gz",na.strings = "NOT\ STATED")
+hui <- read.csv("HUI.csv.gz",na.strings = "NOT STATED")
 hui[hui=="NA"] <- NA
 hui <- na.omit(hui)
 names(hui)
