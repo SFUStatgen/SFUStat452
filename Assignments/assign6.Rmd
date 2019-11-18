@@ -1,0 +1,48 @@
+---
+title: "Assignment 6"
+author: "Brad McNeney"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+There will be an in-class canvas quiz on these questions on 
+Thursday Nov. 28.
+
+The questions in this assignment use the 
+`USArrests` data. You will need two copies of 
+the data, one that is centred only and 
+one that is both centred and scaled.
+
+```{r}
+USArrests <- scale(USArrests,scale=FALSE)
+USArrests.sc <- scale(USArrests,scale=TRUE)
+```
+
+## Question 1 (Chapter 10, #8)
+
+For this question, use `USArrests.sc`.
+
+
+a) 
+
+
+b) 
+
+## Question 2 (Chapter 10, #9)
+
+a) After hierarchical clustering, plot your dendrogram.
+
+
+
+b) Print the names of the states in each of the three
+clusters.
+
+c) After hierarchical clustering, plot your dendrogram.
+
+d) To compare to part (b), cut the tree from (c)
+when there are three clusters and compare these
+to the three clusters from part (b).
+
