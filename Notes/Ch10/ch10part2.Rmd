@@ -339,7 +339,7 @@ names(hsub)
 
 ```{r}
 library(FactoMineR)
-res.mca <- MCA(hsub,row.w = hui$WTS_M)
+res.mca <- MCA(hsub,row.w = hui$WTS_M)#huiPCs <- res.mca$ind$coord
 huiPCs <- res.mca$ind$coord
 ```
 
