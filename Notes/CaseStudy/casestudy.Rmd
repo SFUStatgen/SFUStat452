@@ -1,0 +1,179 @@
+---
+title: 'Statistics 452: Statistical Learning and Prediction'
+subtitle: 'Case Study'
+author: "Brad McNeney"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+```
+
+
+## Flights dataset
+
+This is the dataset being analyzed by the Stat 652 class for their
+final project.
+The data are on flights from three New York City airports 
+in 2013, from the `nycflights13` package. 
+Data were combined from four datasets from this package:
+
+* `flights`
+* `weather`
+* `airports`, and
+* `planes`
+
+You can read about the variables in each dataset by typing
+`help(datasetname)` from the R console. 
+Our goal is to predict departure delays (variable `dep_delay` in
+minutes).
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+#help(flights)
+#help(weather)
+#help(airports)
+#help(planes)
+fltrain <- read_csv("../../Project652/fltrain.csv.gz")
+fltrain
+```
+
+
+```{r}
+dim(fltrain)
+```
+
+There are 43 variables measured on 200,000 flights. 
+
+## Missing data
+
+Handling of missing data is an important topic, but one that we
+did not consider in class. Two common ways to deal with missing
+data are to (i) remove observations with any missing data (complete-case
+analysis) and (ii) impute missing data. Both have their strengths
+and limitations. For simplicity we will remove observations. The 
+danger is that our inference and/or predictions could be biased, which 
+happens when the chance of a missing observation depends on the 
+(unobserved) value of the missing data. However, a complete-case
+analysis is the most straightforward. 
+
+To ensure we are not discarding too many data points, we limit
+the **variables** to those with only a small proportion of missing values.
+One rule of thumb is to discard variables with more than 5% missing
+values, which is 10,000 for these data. To this end we
+count the number of missing values in each variable. 
+The character variables have
+NA interpreted as a character string. This will be converted to 
+the missing code `NA` if we coerce to a factor.
+
+```{r}
+fl <- fltrain
+for(i in 1:ncol(fl)) {
+  if(typeof(fl[[i]]) == "character") {
+    fl[[i]] <- factor(fl[[i]])
+  }
+}
+
+```
+
+
+Now count the missing values in each variable.
+
+```{r}
+num_miss <- function(x) { sum(is.na(x)) }
+sapply(fl,num_miss)
+```
+
+Some of the variables, particularly those taken from the `planes`
+dataset (`year.y` to `engine`), have many missing values. 
+ In what follows I'll
+discard all of the variables from `planes`, plus `wind_gust` and 
+`pressure`.
+
+```{r}
+fl <- fl%>% 
+  select(-year.y,-type,-manufacturer,-model,-engines,-seats, -speed, -engine,-wind_gust,-pressure)
+summary(fl)
+```
+
+
+When we omit rows with any missing values we end up with 184,316 rows out of the origninal 200,000. 
+
+```{r}
+fl <- na.omit(fl)
+summary(fl)
+```
+
+## Summaries of the response variable `dep_delay`
+
+The departure delays variable is highly right-skewed.
+
+```{r}
+range(fl$dep_delay)
+fivenum(fl$dep_delay)
+quantile(fl$dep_delay,probs = c(0.01,0.05,0.1,0.25,.5,.75,.90,.95,.99))
+mean(fl$dep_delay >= 60) # about 15,000 or 8% of flights
+```
+
+Top 10 delays.
+
+```{r}
+fl%>% arrange(desc(dep_delay)) %>% head(10) 
+```
+
+
+Summaries of departure delay by NYC airport:
+```{r}
+Q3 <- function(x) { quantile(x,probs=.75) }
+fl %>% group_by(origin) %>% 
+  summarize(n=n(),med_d = median(dep_delay),Q3_d = Q3(dep_delay), max_d = max(dep_delay)) %>% 
+  arrange(desc(Q3_d)) %>% head(10) 
+```
+
+Summaries of departure delay by airline (carrier).
+
+```{r}
+fl %>% group_by(carrier) %>% 
+  summarize(n=n(),med_d = median(dep_delay),Q3_d = Q3(dep_delay), max_d = max(dep_delay)) %>% 
+  arrange(desc(Q3_d)) %>% head(10) 
+fl %>% group_by(origin,carrier) %>% 
+  summarize(n=n(),med_d = median(dep_delay),Q3_d = Q3(dep_delay), max_d = max(dep_delay)) %>% 
+  arrange(desc(Q3_d)) %>% head(10) 
+fl %>% group_by(dest,carrier) %>% 
+  summarize(n=n(),med_d = median(dep_delay),Q3_d = Q3(dep_delay), max_d = max(dep_delay)) %>% 
+  arrange(desc(Q3_d)) %>% head(10) 
+```
+
+Summaries of departure delay by date:
+
+```{r}
+fl %>% group_by(month,day) %>% 
+  summarize(n=n(),med_d = mean(dep_delay),max_d = max(dep_delay)) %>% 
+  arrange(desc(med_d)) %>% head(10) # what happened on march 8?
+```
+
+
+Summaries of departure delay by precipitation:
+```{r}
+fl %>% mutate(haveprecip = factor(precip>0)) %>% group_by(haveprecip) %>% 
+  summarize(n=n(),med_d = median(dep_delay),Q3_d = Q3(dep_delay), max_d = max(dep_delay)) %>% 
+  arrange(desc(med_d)) %>% head(10) 
+```
+
+## What can we predict?
+
+Extremes seem to be caused by phenomena not in our data, such as snow storms,
+mechanical breakdowns (?), etc.
+
+Perhaps we should map these extremes to something less extreme. 
+Consider mapping to quantiles of the standard normal (like grading 
+departure delays on a "curve"). 
+
+```{r}
+#fl <- fl %>% mutate(dep_delay = qqnorm(dep_delay)$x)
+fl <- fl %>% mutate(dep_delay = rank(dep_delay))
+```
+
+
+
