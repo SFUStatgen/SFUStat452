@@ -268,6 +268,7 @@ form <- formula(dep_delay ~ s(dep_date) + s(sched_dep_time) + carrier + origin +
                   s(temp) + s(dewp) + s(humid) + s(wind_dir) + s(wind_speed) + precip + s(visib))
 gam_fit <- gam(form, data=fl_tr,family=gaussian) 
 summary(gam_fit)
+plot(gam_fit,se=TRUE)
 gam_pred <- predict(gam_fit,newdata=fl_te)
 mse_gam <- mean((fl_te$dep_delay-gam_pred)^2)
 mse_gam
