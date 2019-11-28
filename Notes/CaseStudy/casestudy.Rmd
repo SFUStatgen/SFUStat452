@@ -168,12 +168,136 @@ mechanical breakdowns (?), etc.
 
 Perhaps we should map these extremes to something less extreme. 
 Consider mapping to quantiles of the standard normal (like grading 
-departure delays on a "curve"). 
+departure delays on a "curve"), or mapping to ranks.
+We will scale the ranks by $n+1$ to get the empirical 
+quantiles, which will be comparable to those in the 
+test dataset.
 
 ```{r}
 #fl <- fl %>% mutate(dep_delay = qqnorm(dep_delay)$x)
-fl <- fl %>% mutate(dep_delay = rank(dep_delay))
+den <- nrow(fl)+1
+fl <- fl %>% mutate(dep_delay = rank(dep_delay)/den)
+ ggplot(fl,aes(x=dep_delay)) + geom_histogram(binwidth=.01)
 ```
+
+## More data wrangling
+
+* Convert year/month/day to a date object.
+* Remove `dep_time`, `arr_time` and `arr_delay`. If we are interested in 
+predicting departure delay, these are not know to us.
+Also, they may be associated with `dep_delay`, 
+but if so the causal effect is likely in reverse.
+* Remove `sched_arr_time` (basically departure time + air time),
+`tailnum` (4000 planes), `flight` (flight number), `name` (captured by `dest`), 
+`air_time` (highly correlated with `distance`), `hour` and `minute` (in `sched_dep_time`),
+`time_hour` (same as `sched_dep_time`),
+`tz`, `dst`, `tzone` (time zone of destination), 
+* Replace numeric `precip` with indicator of precipitation/none.
+
+
+```{r}
+library(lubridate)
+fl <- fl %>% 
+  mutate(dep_date = make_date(year.x,month,day)) %>% 
+  select(-year.x,-month,-day,-dep_time,-arr_time,-arr_delay,
+         -sched_arr_time,-tailnum,-flight,-name,-air_time,
+         -hour,-minute,-time_hour,-tz,-dst,-tzone) %>%
+  mutate(precip = as.numeric(precip>0))
+```
+
+
+## Associations between `dep_delay` and quantitative predictors
+
+Here we look at associations between `dep_delay` rank and other
+variables one-at-a-time.
+The presentation here is not exhaustive
+
+
+```{r,cache=TRUE}
+ggplot(fl,aes(x=dep_date,y=dep_delay)) + geom_point(alpha=.01) + geom_smooth()
+# Definitely non-linear. High in summer, low in fall. Not sure about winter. Looks like
+# some sort of event around the end of 2013, but could just be an end effect.
+ggplot(fl,aes(x=sched_dep_time,y=dep_delay)) + geom_point(alpha=0.01) + geom_smooth()
+# delays increase throughout the day
+ggplot(fl,aes(x=distance,y=dep_delay)) + geom_point(alpha=0.01) + geom_smooth()
+ggplot(fl,aes(x=log(distance),y=dep_delay)) + geom_point(alpha=0.01) + geom_smooth()
+# increases with distance -- use log distance
+fl <- mutate(fl,logdistance = log(distance)) %>% select(-distance)
+ggplot(fl,aes(x=temp,y=dep_delay)) + geom_point(alpha=0.01) + geom_smooth()
+# delays when too hot or too cold
+ggplot(fl,aes(x=dewp,y=dep_delay)) + geom_point(alpha=0.01) + geom_smooth()
+# similar to temp
+# Etc.
+# Replace alt with log(alt)
+fl <- mutate(fl,logalt = log(alt)) %>% select(-alt)
+```
+
+We will likely need to include non-linear terms in the quantitative predictors in our models.
+
+## Split training set in two for tuning
+
+* We have lots of data.
+* Methods like cross validation can be used to select tuning parameters, but
+approaches like boosting are best with a training/test set.
+* Evaluate all learning methods on the test set.
+
+```{r}
+set.seed(123)
+tr_size <- ceiling(2*nrow(fl)/3)
+train <- sample(1:nrow(fl),size=tr_size)
+fl_tr <- fl[train,]
+fl_te <- fl[-train,]
+
+# baseline to compare learning methods to:
+var_dd <- var(fl_te$dep_delay)
+var_dd
+```
+
+
+## Learning methods
+
+In the interest of time I'll just consider gam and boosting.
+
+The first fit is a gam with default df for smooths of 
+quantitiative variables. As expected, lat, lon and alt of 
+the destination contribute very little (not shown) and are removed.
+
+```{r,cache=TRUE}
+library(gam)
+form <- formula(dep_delay ~ s(dep_date) + s(sched_dep_time) + carrier + origin + dest + s(logdistance) +
+                  s(temp) + s(dewp) + s(humid) + s(wind_dir) + s(wind_speed) + precip + s(visib))
+gam_fit <- gam(form, data=fl_tr,family=gaussian) 
+summary(gam_fit)
+gam_pred <- predict(gam_fit,newdata=fl_te)
+mse_gam <- mean((fl_te$dep_delay-gam_pred)^2)
+mse_gam
+abs(mse_gam - var_dd)/var_dd
+```
+
+The more trees and slower learning, the better a boosted model
+will do. I only have time to go as far as 1000 trees and 
+shrinkage 0.01.
+
+```{r,cache=TRUE}
+library(gbm)
+dep_date_numeric <- as.numeric(fl_tr$dep_date)
+dep_date_numeric <- dep_date_numeric - mean(dep_date_numeric)
+fl_tr_tem <- mutate(fl_tr,dep_date = dep_date_numeric)
+gbm_fit <-gbm(dep_delay ~ .,data=fl_tr_tem,distribution="gaussian",
+              n.trees = 1000, shrinkage = 0.01)
+summary(gbm_fit)
+#
+dep_date_numeric <- as.numeric(fl_te$dep_date)
+dep_date_numeric <- dep_date_numeric - mean(dep_date_numeric)
+fl_te_tem <- mutate(fl_te,dep_date = dep_date_numeric)
+#
+gbm_pred <- predict(gbm_fit,newdata=fl_te_tem,n.trees = 1000)
+mse_gbm <- mean((fl_te$dep_delay-gbm_pred)^2)
+mse_gbm
+abs(mse_gbm - var_dd)/var_dd
+
+```
+
 
 
 
