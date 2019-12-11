@@ -299,6 +299,36 @@ abs(mse_gbm - var_dd)/var_dd
 
 ```
 
+## Evaluate on Test Data
 
-
+```{r}
+fltest <- read_csv("../../Project652/fltest.csv.gz")
+fl <- fltest
+for(i in 1:ncol(fl)) {
+  if(typeof(fl[[i]]) == "character") {
+    fl[[i]] <- factor(fl[[i]])
+  }
+}
+fl <- fl%>% 
+  select(-year.y,-type,-manufacturer,-model,-engines,-seats, -speed, -engine,-wind_gust,-pressure)
+fl <- na.omit(fl)
+fl <- fl %>% 
+  mutate(dep_date = make_date(year.x,month,day)) %>% 
+  select(-year.x,-month,-day,-dep_time,-arr_time,-arr_delay,
+         -sched_arr_time,-tailnum,-flight,-name,-air_time,
+         -hour,-minute,-time_hour,-tz,-dst,-tzone) %>%
+  mutate(precip = as.numeric(precip>0))
+fl <- mutate(fl,logdistance = log(distance)) %>% select(-distance)
+fl <- mutate(fl,logalt = log(alt)) %>% select(-alt)
+den <- nrow(fl)+1
+fl <- fl %>% mutate(dep_delay = rank(dep_delay)/den)
+fl_te <- fl
+dep_date_numeric <- as.numeric(fl_te$dep_date)
+dep_date_numeric <- dep_date_numeric - mean(dep_date_numeric)
+fl_te_tem <- mutate(fl_te,dep_date = dep_date_numeric)
+#
+gbm_pred <- predict(gbm_fit,newdata=fl_te_tem,n.trees = 1000)
+mse_gbm <- mean((fl_te$dep_delay-gbm_pred)^2)
+mse_gbm
+```
 

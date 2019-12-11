@@ -92,7 +92,7 @@ derivative.
     make any function.
 * Text (page 273) uses the truncated power basis. 
     + They show that $K$ interior knots leads to $K+3$ basis functions,
-    so $K+4$ coefficients, or degrees of freedom (df).
+    so $K+3$ model df, or $K+4$ total df.
 * An alternative basis is the B-spline basis.
 
 \scriptsize
@@ -192,7 +192,7 @@ plotfit(fit,Wage.sub,newdat)
 outside the knots, and these constraints have the effect
 of reducing variance.
     + Note on df: two extra constraints means two fewer df;
-    i.e., $K+1$.
+    i.e., $K+1$ model df.
 
 \scriptsize
 
